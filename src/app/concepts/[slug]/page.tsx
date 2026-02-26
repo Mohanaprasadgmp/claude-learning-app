@@ -50,7 +50,7 @@ export default async function ConceptPage({ params }: { params: Params }) {
       ? prisma.conceptLike.findUnique({
           where: { userId_conceptSlug: { userId: user.id, conceptSlug: slug } },
         })
-      : null,
+      : Promise.resolve(null),
     prisma.conceptComment.findMany({
       where: { conceptSlug: slug, parentId: null },
       include: {
@@ -66,7 +66,7 @@ export default async function ConceptPage({ params }: { params: Params }) {
       },
       orderBy: { createdAt: 'asc' },
     }),
-  ]);
+  ] as const);
 
   const comments = rawComments.map((c) => ({
     id: c.id,
