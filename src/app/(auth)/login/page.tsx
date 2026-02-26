@@ -2,7 +2,7 @@
 
 import { useActionState } from 'react'
 import Link from 'next/link'
-import { login, type AuthState } from '@/app/actions/auth'
+import { login, signInWithGoogle, type AuthState } from '@/app/actions/auth'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
@@ -40,20 +40,16 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Google placeholder */}
-        <div className="relative mb-5">
+        {/* Google sign-in */}
+        <form action={signInWithGoogle} className="mb-5">
           <button
-            type="button"
-            disabled
-            className="flex w-full cursor-not-allowed items-center justify-center gap-3 rounded-lg border border-zinc-700 bg-zinc-800/50 px-4 py-2.5 text-sm font-medium text-zinc-400 opacity-70 transition-colors"
+            type="submit"
+            className="flex w-full items-center justify-center gap-3 rounded-lg border border-zinc-700 bg-zinc-800/50 px-4 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-700/60 hover:border-zinc-600"
           >
             <GoogleIcon />
             Continue with Google
           </button>
-          <span className="absolute -right-2 -top-2.5 rounded-full bg-amber-500 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white shadow">
-            Soon
-          </span>
-        </div>
+        </form>
 
         {/* Divider */}
         <div className="mb-5 flex items-center gap-3">
