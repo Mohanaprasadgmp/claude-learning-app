@@ -29,7 +29,7 @@ export default async function ConceptPage({ params }: { params: Params }) {
   const { slug } = await params;
   const concept = concepts.find((c) => c.slug === slug);
 
-  if (!concept) notFound();
+  if (!concept || !concept.released) notFound();
 
   const related = concepts
     .filter((c) => c.category === concept.category && c.slug !== concept.slug)

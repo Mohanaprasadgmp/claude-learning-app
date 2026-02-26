@@ -24,6 +24,7 @@ export interface Concept {
   difficulty: Difficulty;
   shortDesc: string;
   sections: ConceptSection[];
+  released?: boolean;
 }
 
 export const difficultyBadgeStyles: Record<Difficulty, string> = {
@@ -556,6 +557,7 @@ mcp__*        — Tools from connected MCP servers`,
     emoji: "📄",
     category: "Memory",
     difficulty: "Intermediate",
+    released: true,
     shortDesc:
       "Give Claude persistent project-level instructions via a markdown file.",
     sections: [

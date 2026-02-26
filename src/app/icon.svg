@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!-- Dark rounded background -->
+  <rect width="32" height="32" rx="7" fill="#0f0f0f"/>
+  <!-- Amber C shape: arc from upper-right, counterclockwise through top/left/bottom, to lower-right -->
+  <path d="M 23 10 A 9.5 9.5 0 1 0 23 22"
+    stroke="#fbbf24" stroke-width="3.5" stroke-linecap="round"/>
+</svg>

@@ -2,10 +2,8 @@ import { concepts, ALL_CATEGORIES, ConceptCategory } from '@/data/concepts';
 import ConceptCard from '@/components/ConceptCard';
 import CategoryFilter from '@/components/CategoryFilter';
 import ThemeToggle from '@/components/ThemeToggle';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { ExternalLink } from 'lucide-react';
 
 type SearchParams = Promise<{ category?: string }>;
 
@@ -106,7 +104,7 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
       {/* Footer */}
       <footer className="border-t border-gray-200 dark:border-zinc-800 mt-16 py-8">
         <div className="mx-auto max-w-7xl px-6 text-center text-xs text-gray-400 dark:text-zinc-600">
-          Built to learn Claude Code hands-on &middot; Powered by Next.js + Tailwind CSS
+          Built to learn Claude Code
         </div>
       </footer>
     </div>
