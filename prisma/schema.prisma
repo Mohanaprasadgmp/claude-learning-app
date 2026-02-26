@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Profile {
+  id           String               @id @default(cuid())
+  userId       String               @unique
+  email        String
+  name         String
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  comments     ConceptComment[]
+  likes        ConceptLike[]
+  commentLikes ConceptCommentLike[]
+}
+
+model ConceptLike {
+  id          String   @id @default(cuid())
+  userId      String
+  conceptSlug String
+  createdAt   DateTime @default(now())
+  profile     Profile  @relation(fields: [userId], references: [userId])
+
+  @@unique([userId, conceptSlug])
+}
+
+model ConceptComment {
+  id          String               @id @default(cuid())
+  userId      String
+  conceptSlug String
+  content     String
+  parentId    String?
+  createdAt   DateTime             @default(now())
+  profile     Profile              @relation(fields: [userId], references: [userId])
+  parent      ConceptComment?      @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies     ConceptComment[]     @relation("CommentReplies")
+  likes       ConceptCommentLike[]
+
+  @@index([conceptSlug])
+  @@index([parentId])
+}
+
+model ConceptCommentLike {
+  id        String         @id @default(cuid())
+  userId    String
+  commentId String
+  createdAt DateTime       @default(now())
+  profile   Profile        @relation(fields: [userId], references: [userId])
+  comment   ConceptComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, commentId])
+}

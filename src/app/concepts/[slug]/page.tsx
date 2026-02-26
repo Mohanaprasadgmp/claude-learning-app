@@ -4,10 +4,16 @@ import { concepts, difficultyBadgeStyles } from '@/data/concepts';
 import ConceptCard from '@/components/ConceptCard';
 import CodeBlock from '@/components/CodeBlock';
 import ThemeToggle from '@/components/ThemeToggle';
+import LikeButton from '@/components/LikeButton';
+import CommentsSection from '@/components/CommentsSection';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { ChevronLeft, ExternalLink } from 'lucide-react';
+import { createClient } from '@/lib/supabase/server';
+import { prisma } from '@/lib/prisma';
+
+export const dynamic = 'force-dynamic';
 
 type Params = Promise<{ slug: string }>;
 
@@ -34,6 +40,53 @@ export default async function ConceptPage({ params }: { params: Params }) {
   const related = concepts
     .filter((c) => c.category === concept.category && c.slug !== concept.slug)
     .slice(0, 3);
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  const [likesCount, userLike, rawComments] = await Promise.all([
+    prisma.conceptLike.count({ where: { conceptSlug: slug } }),
+    user
+      ? prisma.conceptLike.findUnique({
+          where: { userId_conceptSlug: { userId: user.id, conceptSlug: slug } },
+        })
+      : null,
+    prisma.conceptComment.findMany({
+      where: { conceptSlug: slug, parentId: null },
+      include: {
+        profile: { select: { name: true } },
+        likes: { select: { userId: true } },
+        replies: {
+          include: {
+            profile: { select: { name: true } },
+            likes: { select: { userId: true } },
+          },
+          orderBy: { createdAt: 'asc' },
+        },
+      },
+      orderBy: { createdAt: 'asc' },
+    }),
+  ]);
+
+  const comments = rawComments.map((c) => ({
+    id: c.id,
+    content: c.content,
+    createdAt: c.createdAt,
+    userId: c.userId,
+    profile: c.profile,
+    likeCount: c.likes.length,
+    userLiked: user ? c.likes.some((l) => l.userId === user.id) : false,
+    replies: c.replies.map((r) => ({
+      id: r.id,
+      content: r.content,
+      createdAt: r.createdAt,
+      userId: r.userId,
+      profile: r.profile,
+      likeCount: r.likes.length,
+      userLiked: user ? r.likes.some((l) => l.userId === user.id) : false,
+      replies: [] as never[],
+    })),
+  }));
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a] text-gray-900 dark:text-white transition-colors">
@@ -127,6 +180,23 @@ export default async function ConceptPage({ params }: { params: Params }) {
             </section>
           ))}
         </article>
+
+        {/* Likes */}
+        <div className="mt-10 pt-8 border-t border-gray-200 dark:border-zinc-800">
+          <LikeButton
+            conceptSlug={slug}
+            initialCount={likesCount}
+            initialLiked={!!userLike}
+            userId={user?.id ?? null}
+          />
+        </div>
+
+        {/* Comments */}
+        <CommentsSection
+          conceptSlug={slug}
+          initialComments={comments}
+          userId={user?.id ?? null}
+        />
 
         {/* References */}
         {concept.references && concept.references.length > 0 && (

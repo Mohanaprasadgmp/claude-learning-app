@@ -239,6 +239,32 @@ claude --read-only`,
         },
       },
       {
+        heading: "Custom Commands",
+        body: "Custom commands let you create your own slash commands by placing markdown files in .claude/commands/. The filename becomes the command name — so audit.md creates /audit. Use the $ARGUMENTS placeholder to accept dynamic input when invoking the command.",
+        code: {
+          language: "text",
+          content: `# Folder structure
+.claude/
+  commands/
+    audit.md        → /audit
+    write_tests.md  → /write_tests
+
+# Example: audit.md
+Run npm audit to find vulnerable packages, then run npm audit fix to apply updates, then run tests to verify nothing broke.
+
+# Example: write_tests.md (with arguments)
+Write comprehensive tests for: $ARGUMENTS
+
+Testing conventions:
+* Use Vitest with React Testing Library
+* Place test files in a __tests__ directory
+* Name test files as [filename].test.ts(x)
+
+# Invoke with arguments
+/write_tests the use-auth.ts file in the hooks directory`,
+        },
+      },
+      {
         heading: "Output & Scripting",
         body: "Claude Code can be embedded in shell scripts and CI pipelines using the -p flag with output formatting options. This enables automated code review, documentation generation, and more.",
         code: {
@@ -263,6 +289,11 @@ echo "Review this diff for security issues:" | git diff | claude -p`,
         label: "CLI Reference",
         url: "https://code.claude.com/docs/en/cli-reference",
         description: "Complete reference for all CLI commands and flags.",
+      },
+      {
+        label: "Slash Reference",
+        url: "https://code.claude.com/docs/en/interactive-mode#built-in-commands",
+        description: "Complete reference for all Slash commands.",
       },
     ],
   },
@@ -494,8 +525,8 @@ claude --read-only
     ],
   },
   {
-    slug: "plan-mode",
-    title: "Plan Mode",
+    slug: "plan-vs-think-mode",
+    title: "Plan Mode vs Think Mode",
     emoji: "📋",
     category: "Intelligence",
     difficulty: "Intermediate",
@@ -612,6 +643,7 @@ Shift + Tab  (press once if auto-accepting edits)
     emoji: "🛠️",
     category: "Intelligence",
     difficulty: "Intermediate",
+    released: true,
     shortDesc: "Understand the tools Claude uses to interact with your system.",
     sections: [
       {
@@ -680,6 +712,7 @@ mcp__*        — Tools from connected MCP servers`,
     emoji: "🧠",
     category: "Intelligence",
     difficulty: "Advanced",
+    released: true,
     shortDesc:
       "Enable deep reasoning for complex architectural and algorithmic problems.",
     sections: [
@@ -743,6 +776,7 @@ mcp__*        — Tools from connected MCP servers`,
     emoji: "🗂️",
     category: "Memory",
     difficulty: "Intermediate",
+    released: true,
     shortDesc:
       "Persist knowledge across sessions with Claude's auto memory system.",
     sections: [
@@ -815,6 +849,7 @@ searchParams is a Promise in Next.js 15+ — always await it.
     emoji: "🔄",
     category: "Memory",
     difficulty: "Intermediate",
+    released: true,
     shortDesc:
       "Manage Claude's context window to maintain performance on long sessions.",
     sections: [
@@ -882,6 +917,7 @@ Context freed: ~45,000 tokens
     emoji: "⚡",
     category: "Memory",
     difficulty: "Advanced",
+    released: true,
     shortDesc:
       "Reduce API costs and latency by caching repeated context prefixes.",
     sections: [
@@ -978,6 +1014,7 @@ messages = [
     emoji: "🤖",
     category: "Automation",
     difficulty: "Advanced",
+    released: true,
     shortDesc:
       "Spawn specialized subagents for parallel, isolated, and focused tasks.",
     sections: [
@@ -1081,6 +1118,7 @@ Task(
     emoji: "🪝",
     category: "Automation",
     difficulty: "Advanced",
+    released: true,
     shortDesc:
       "Run shell commands automatically before or after Claude's tool calls.",
     sections: [
@@ -1199,6 +1237,7 @@ exit 0   # Zero exit allows the tool call to proceed`,
     emoji: "🎯",
     category: "Automation",
     difficulty: "Intermediate",
+    released: true,
     shortDesc:
       "Create custom slash commands that expand into full prompts for repeated workflows.",
     sections: [
@@ -1288,6 +1327,7 @@ Output a structured review with:
     emoji: "🌳",
     category: "Automation",
     difficulty: "Advanced",
+    released: true,
     shortDesc:
       "Isolate experimental changes in git worktrees for safe parallel development.",
     sections: [
@@ -1373,6 +1413,7 @@ Task(
     emoji: "🔌",
     category: "Integration",
     difficulty: "Advanced",
+    released: true,
     shortDesc:
       "Connect Claude to external tools, databases, and services via MCP servers.",
     sections: [
@@ -1474,6 +1515,7 @@ await server.connect(transport);`,
     emoji: "⚙️",
     category: "Integration",
     difficulty: "Intermediate",
+    released: true,
     shortDesc:
       "Configure Claude Code behavior through settings files at user and project level.",
     sections: [

@@ -2,14 +2,33 @@ import { concepts, ALL_CATEGORIES, ConceptCategory } from '@/data/concepts';
 import ConceptCard from '@/components/ConceptCard';
 import CategoryFilter from '@/components/CategoryFilter';
 import ThemeToggle from '@/components/ThemeToggle';
+import LogoutButton from '@/components/LogoutButton';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { createClient } from '@/lib/supabase/server';
+import { prisma } from '@/lib/prisma';
 
 type SearchParams = Promise<{ category?: string }>;
+
+function getInitials(name: string): string {
+  return name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((w) => w[0].toUpperCase())
+    .join('')
+}
 
 export default async function Home({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
   const activeCategory = params.category || '';
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  const profile = user
+    ? await prisma.profile.findUnique({ where: { userId: user.id } }).catch(() => null)
+    : null;
 
   const filtered =
     activeCategory && ALL_CATEGORIES.includes(activeCategory as ConceptCategory)
@@ -30,25 +49,17 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
             </p>
           </div>
           <div className="flex items-center gap-3">
-            {/* Developer credit */}
-            <a
-              href="mailto:mohanaprasadgmp@gmail.com"
-              className="hidden sm:flex items-center gap-2.5 rounded-full border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5 hover:border-amber-400/60 dark:hover:border-amber-400/60 transition-all group"
-              title="Contact developer"
-            >
-              {/* Avatar with MG initials */}
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-amber-400 to-orange-500 text-[10px] font-bold text-white leading-none select-none">
-                MG
-              </span>
-              <div className="leading-tight">
-                <p className="text-xs font-medium text-gray-700 dark:text-zinc-300 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
-                  Mohanaprasad
-                </p>
-                <p className="text-[10px] text-gray-400 dark:text-zinc-400">
-                  mohanaprasadgmp@gmail.com
+            {profile && (
+              <div className="flex items-center gap-2.5 rounded-full border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-amber-400 to-orange-500 text-[10px] font-bold text-white leading-none select-none">
+                  {getInitials(profile.name)}
+                </span>
+                <p className="text-xs font-medium text-gray-700 dark:text-zinc-300">
+                  {profile.name}
                 </p>
               </div>
-            </a>
+            )}
+            {user && <LogoutButton />}
             <ThemeToggle />
           </div>
         </div>
