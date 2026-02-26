@@ -1,34 +1,14 @@
 import { concepts, ALL_CATEGORIES, ConceptCategory } from '@/data/concepts';
 import ConceptCard from '@/components/ConceptCard';
 import CategoryFilter from '@/components/CategoryFilter';
-import ThemeToggle from '@/components/ThemeToggle';
-import LogoutButton from '@/components/LogoutButton';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { createClient } from '@/lib/supabase/server';
-import { prisma } from '@/lib/prisma';
 
 type SearchParams = Promise<{ category?: string }>;
-
-function getInitials(name: string): string {
-  return name
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((w) => w[0].toUpperCase())
-    .join('')
-}
 
 export default async function Home({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
   const activeCategory = params.category || '';
-
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  const profile = user
-    ? await prisma.profile.findUnique({ where: { userId: user.id } }).catch(() => null)
-    : null;
 
   const filtered =
     activeCategory && ALL_CATEGORIES.includes(activeCategory as ConceptCategory)
@@ -37,34 +17,6 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a] text-gray-900 dark:text-white transition-colors">
-      {/* Header */}
-      <header className="border-b border-gray-200 dark:border-zinc-800 bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-sm sticky top-0 z-10">
-        <div className="mx-auto max-w-7xl px-6 py-5 flex items-center justify-between gap-4">
-          <div>
-            <h1 className="text-xl font-bold tracking-tight">
-              <span className="text-amber-500 dark:text-amber-400">Claude Code</span> Learning Hub
-            </h1>
-            <p className="text-xs text-gray-400 dark:text-zinc-500 mt-0.5">
-              {concepts.length} concepts &middot; Learn by doing
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            {profile && (
-              <div className="flex items-center gap-2.5 rounded-full border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-amber-400 to-orange-500 text-[10px] font-bold text-white leading-none select-none">
-                  {getInitials(profile.name)}
-                </span>
-                <p className="text-xs font-medium text-gray-700 dark:text-zinc-300">
-                  {profile.name}
-                </p>
-              </div>
-            )}
-            {user && <LogoutButton />}
-            <ThemeToggle />
-          </div>
-        </div>
-      </header>
-
       <main className="mx-auto max-w-7xl px-6 py-10">
         {/* Hero */}
         <div className="mb-10">
@@ -110,7 +62,6 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-24 text-center">
-            <span className="text-4xl mb-4">🔍</span>
             <p className="text-gray-400 dark:text-zinc-400">No concepts found for this category.</p>
           </div>
         )}

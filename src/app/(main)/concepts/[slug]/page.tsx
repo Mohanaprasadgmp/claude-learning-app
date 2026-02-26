@@ -3,7 +3,6 @@ import Link from 'next/link';
 import { concepts, difficultyBadgeStyles } from '@/data/concepts';
 import ConceptCard from '@/components/ConceptCard';
 import CodeBlock from '@/components/CodeBlock';
-import ThemeToggle from '@/components/ThemeToggle';
 import LikeButton from '@/components/LikeButton';
 import CommentsSection from '@/components/CommentsSection';
 import { Badge } from '@/components/ui/badge';
@@ -90,23 +89,6 @@ export default async function ConceptPage({ params }: { params: Params }) {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a] text-gray-900 dark:text-white transition-colors">
-      {/* Top bar */}
-      <div className="border-b border-gray-200 dark:border-zinc-800 bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-sm sticky top-0 z-10">
-        <div className="mx-auto max-w-4xl px-6 py-4 flex items-center justify-between">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-gray-500 dark:text-zinc-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-500/10 dark:hover:bg-amber-400/10 px-2"
-            asChild
-          >
-            <Link href="/">
-              <ChevronLeft className="h-4 w-4" />
-              All Concepts
-            </Link>
-          </Button>
-          <ThemeToggle />
-        </div>
-      </div>
 
       <div className="mx-auto max-w-4xl px-6 py-12">
         {/* Concept header */}
