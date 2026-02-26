@@ -68,22 +68,22 @@ export default async function ConceptPage({ params }: { params: Params }) {
     }),
   ] as const);
 
-  const comments = rawComments.map((c) => ({
+  const comments = rawComments.map((c: any) => ({
     id: c.id,
     content: c.content,
     createdAt: c.createdAt,
     userId: c.userId,
     profile: c.profile,
     likeCount: c.likes.length,
-    userLiked: user ? c.likes.some((l) => l.userId === user.id) : false,
-    replies: c.replies.map((r) => ({
+    userLiked: user ? c.likes.some((l:any) => l.userId === user.id) : false,
+    replies: c.replies.map((r:any) => ({
       id: r.id,
       content: r.content,
       createdAt: r.createdAt,
       userId: r.userId,
       profile: r.profile,
       likeCount: r.likes.length,
-      userLiked: user ? r.likes.some((l) => l.userId === user.id) : false,
+      userLiked: user ? r.likes.some((l:any) => l.userId === user.id) : false,
       replies: [] as never[],
     })),
   }));
