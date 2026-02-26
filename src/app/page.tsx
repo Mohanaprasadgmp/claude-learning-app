@@ -29,23 +29,27 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
               {concepts.length} concepts &middot; Learn by doing
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <ThemeToggle />
-            {/* <Button
-              variant="outline"
-              size="sm"
-              className="hidden sm:inline-flex rounded-full border-gray-300 dark:border-zinc-700 text-gray-500 dark:text-zinc-400 hover:border-amber-500/50 dark:hover:border-amber-400/50 hover:text-amber-600 dark:hover:text-amber-400 bg-transparent"
-              asChild
+          <div className="flex items-center gap-3">
+            {/* Developer credit */}
+            <a
+              href="mailto:mohanaprasadgmp@gmail.com"
+              className="hidden sm:flex items-center gap-2.5 rounded-full border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5 hover:border-amber-400/60 dark:hover:border-amber-400/60 transition-all group"
+              title="Contact developer"
             >
-              <a
-                href="https://docs.anthropic.com/en/docs/claude-code/overview"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <ExternalLink className="h-3.5 w-3.5" />
-                Official Docs
-              </a>
-            </Button> */}
+              {/* Avatar with MG initials */}
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-amber-400 to-orange-500 text-[10px] font-bold text-white leading-none select-none">
+                MG
+              </span>
+              <div className="leading-tight">
+                <p className="text-xs font-medium text-gray-700 dark:text-zinc-300 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                  Mohanaprasad
+                </p>
+                <p className="text-[10px] text-gray-400 dark:text-zinc-400">
+                  mohanaprasadgmp@gmail.com
+                </p>
+              </div>
+            </a>
+            <ThemeToggle />
           </div>
         </div>
       </header>

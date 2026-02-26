@@ -7,7 +7,7 @@ import ThemeToggle from '@/components/ThemeToggle';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, ExternalLink } from 'lucide-react';
 
 type Params = Promise<{ slug: string }>;
 
@@ -127,6 +127,36 @@ export default async function ConceptPage({ params }: { params: Params }) {
             </section>
           ))}
         </article>
+
+        {/* References */}
+        {concept.references && concept.references.length > 0 && (
+          <div className="mt-12 pt-8 border-t border-gray-200 dark:border-zinc-800">
+            <h2 className="text-base font-semibold text-gray-700 dark:text-zinc-300 mb-3 uppercase tracking-wider text-xs">
+              Official References
+            </h2>
+            <div className="flex flex-col gap-2">
+              {concept.references.map((ref, i) => (
+                <a
+                  key={i}
+                  href={ref.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-center justify-between rounded-lg border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-4 py-3 hover:border-amber-400/60 hover:bg-amber-500/5 dark:hover:border-amber-400/60 dark:hover:bg-amber-400/5 transition-all"
+                >
+                  <div>
+                    <span className="text-sm font-medium text-gray-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                      {ref.label}
+                    </span>
+                    {ref.description && (
+                      <p className="text-xs text-gray-500 dark:text-zinc-500 mt-0.5">{ref.description}</p>
+                    )}
+                  </div>
+                  <ExternalLink className="h-3.5 w-3.5 text-gray-400 dark:text-zinc-600 group-hover:text-amber-500 dark:group-hover:text-amber-400 transition-colors shrink-0 ml-4" />
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Related concepts */}
         {related.length > 0 && (

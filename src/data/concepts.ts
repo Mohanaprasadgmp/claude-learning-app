@@ -16,6 +16,12 @@ export interface ConceptSection {
   };
 }
 
+export interface ConceptReference {
+  label: string;
+  url: string;
+  description?: string;
+}
+
 export interface Concept {
   slug: string;
   title: string;
@@ -25,6 +31,7 @@ export interface Concept {
   shortDesc: string;
   sections: ConceptSection[];
   released?: boolean;
+  references?: ConceptReference[];
 }
 
 export const difficultyBadgeStyles: Record<Difficulty, string> = {
@@ -177,6 +184,7 @@ CLAUDE.local.md (manually created)
     slug: "cli-commands",
     title: "CLI Commands",
     emoji: "⌨️",
+    released: true,
     category: "Core CLI",
     difficulty: "Beginner",
     shortDesc: "Master the full set of CLI flags, modes, and slash commands.",
@@ -250,6 +258,13 @@ echo "Review this diff for security issues:" | git diff | claude -p`,
         body: "Use claude -p for automation and scripting without interactive overhead. Use /compact frequently on long sessions to prevent context limits from slowing Claude down. The --resume flag is great for continuing work across terminal restarts.",
       },
     ],
+    references: [
+      {
+        label: "CLI Reference",
+        url: "https://code.claude.com/docs/en/cli-reference",
+        description: "Complete reference for all CLI commands and flags.",
+      },
+    ],
   },
   {
     slug: "keyboard-shortcuts",
@@ -257,6 +272,7 @@ echo "Review this diff for security issues:" | git diff | claude -p`,
     emoji: "⚡",
     category: "Core CLI",
     difficulty: "Beginner",
+    released: true,
     shortDesc:
       "Navigate and control Claude Code sessions with keyboard shortcuts.",
     sections: [
@@ -323,8 +339,61 @@ Claude: Interrupted. I was running: npm run build
         },
       },
       {
+        heading: "Rewinding Conversations",
+        body: "During long conversations, you might accumulate context that becomes irrelevant or distracting. For instance, if Claude encounters an error and spends time debugging it, that back-and-forth discussion might not be useful for the next task.\n\nYou can rewind the conversation by pressing Escape twice. This shows you all the messages you've sent, allowing you to jump back to an earlier point and continue from there. This technique helps you:\n\n• Maintain valuable context (like Claude's understanding of your codebase)\n• Remove distracting or irrelevant conversation history\n• Keep Claude focused on the current task",
+        code: {
+          language: "text",
+          content: `# Press Escape twice to enter rewind mode
+Esc Esc
+
+# Claude shows your message history:
+[1] > /init
+[2] > Add authentication to the app
+[3] > Fix the TypeScript error   ← back-and-forth debugging noise
+[4] > Now add the login form
+
+# Select an earlier message to continue from that point
+# Claude picks up as if the noisy messages never happened`,
+        },
+      },
+      {
+        heading: "Interrupting Claude with Escape",
+        body: "Sometimes Claude starts heading in the wrong direction or tries to tackle too much at once. You can press the Escape key to stop Claude mid-response, allowing you to redirect the conversation.\n\nThis is particularly useful when you want Claude to focus on one specific task instead of trying to handle multiple things simultaneously. For example, if you ask Claude to write tests for multiple functions and it starts creating a comprehensive plan for all of them, you can interrupt and ask it to focus on just one function at a time.",
+        code: {
+          language: "text",
+          content: `# Claude starts going too broad:
+> Write tests for all the utility functions
+[Claude: I'll create a comprehensive test suite covering...]
+
+# Press Escape to interrupt
+Esc
+Claude: Interrupted.
+
+# Redirect to something narrower:
+> Just write tests for the formatDate function first`,
+        },
+      },
+      {
+        heading: "Combining Escape with Memories",
+        body: "One of the most powerful applications of the escape technique is fixing repetitive errors. When Claude makes the same mistake repeatedly across different conversations, you can:\n\n• Press Escape to stop the current response\n• Use the # shortcut to add a memory about the correct approach\n• Continue the conversation with the corrected information\n\nThis prevents Claude from making the same error in future conversations on your project.",
+        code: {
+          language: "text",
+          content: `# Claude keeps using var instead of const:
+[Claude: var result = await fetchUser(id)...]
+
+# Press Escape to interrupt
+Esc
+
+# Add a memory using the # shortcut:
+# Never use var — always use const or let
+
+# Claude writes the memory to CLAUDE.md and resumes
+# Future responses will follow the rule automatically`,
+        },
+      },
+      {
         heading: "Tips",
-        body: "Learn Ctrl+C muscle memory early — it's safer to interrupt and redirect than to let Claude continue in a wrong direction. Use the Up arrow to quickly re-send a slightly modified version of your last prompt.",
+        body: "Learn Ctrl+C muscle memory early — it's safer to interrupt and redirect than to let Claude continue in a wrong direction. Use the Up arrow to quickly re-send a slightly modified version of your last prompt. Use Esc+Esc (rewind) when a debugging tangent has polluted your context — it's faster than starting a fresh session.",
       },
     ],
   },
@@ -334,6 +403,7 @@ Claude: Interrupted. I was running: npm run build
     emoji: "🔐",
     category: "Core CLI",
     difficulty: "Intermediate",
+    released: true,
     shortDesc:
       "Control what Claude can do automatically vs. what requires your approval.",
     sections: [
@@ -429,6 +499,7 @@ claude --read-only
     emoji: "📋",
     category: "Intelligence",
     difficulty: "Intermediate",
+    released: true,
     shortDesc:
       "Make Claude plan before acting — get architectural clarity upfront.",
     sections: [
@@ -491,8 +562,47 @@ Shall I proceed with this plan?`,
         },
       },
       {
+        heading: "Enabling Planning Mode",
+        body: "For more complex tasks that require extensive research across your codebase, you can enable Planning Mode. This feature makes Claude do thorough exploration of your project before implementing changes.\n\nEnable Planning Mode by pressing Shift + Tab twice (or once if you're already auto-accepting edits). In this mode, Claude will:\n\n• Read more files in your project\n• Create a detailed implementation plan\n• Show you exactly what it intends to do\n• Wait for your approval before proceeding\n\nThis gives you the opportunity to review the plan and redirect Claude if it missed something important or didn't consider a particular scenario.",
+        code: {
+          language: "text",
+          content: `# Activate planning mode:
+Shift + Tab  (press twice from default mode)
+Shift + Tab  (press once if auto-accepting edits)
+
+# Claude enters plan mode and will:
+# 1. Explore your codebase thoroughly
+# 2. Write a structured plan to tasks/todo.md
+# 3. Present the plan for your review
+# 4. Wait for approval before writing any code
+
+> Refactor the authentication system to use JWT
+[Claude reads 12 files, identifies 4 affected components...]
+[Claude writes plan — awaiting your approval]`,
+        },
+      },
+      {
+        heading: "Thinking Modes",
+        body: "Claude offers different levels of reasoning through \"thinking\" modes. These allow Claude to spend more time reasoning about complex problems before providing solutions.\n\nThe available thinking modes include:\n\n• \"Think\" - Basic reasoning\n• \"Think more\" - Extended reasoning\n• \"Think a lot\" - Comprehensive reasoning\n• \"Think longer\" - Extended time reasoning\n• \"Ultrathink\" - Maximum reasoning capability\n\nEach mode gives Claude progressively more tokens to work with, allowing for deeper analysis of challenging problems.",
+        code: {
+          language: "text",
+          content: `# Use thinking modes by including them in your prompt:
+
+> Think about the best architecture for this feature
+> Think more about potential edge cases in this logic
+> Think a lot about how to refactor this without breaking tests
+> Ultrathink about the security implications of this approach
+
+# When to use each:
+# "Think"      → Simple decisions, quick tradeoff analysis
+# "Think more" → Design decisions, debugging hard bugs
+# "Think a lot" → Architecture changes, complex refactors
+# "Ultrathink"  → Security reviews, critical system design`,
+        },
+      },
+      {
         heading: "Tips",
-        body: "Ask Claude to include file counts, estimated complexity, and potential risks in its plans. If a plan looks too complex, ask it to find a simpler approach. A good plan prevents 80% of rework — invest time here.",
+        body: "Ask Claude to include file counts, estimated complexity, and potential risks in its plans. If a plan looks too complex, ask it to find a simpler approach. A good plan prevents 80% of rework — invest time here. Use Ultrathink sparingly — it consumes significantly more tokens but is worth it for high-stakes decisions.",
       },
     ],
   },
