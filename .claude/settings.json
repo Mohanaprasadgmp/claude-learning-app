@@ -2,7 +2,6 @@
   "permissions": {
     "allow": [
       "Bash(npm run:*)",
-      "WebFetch(domain:anthropic.skilljar.com)",
       "Bash(npx prisma:*)"
     ],
     "deny": []

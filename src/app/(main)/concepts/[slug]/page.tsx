@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { ChevronLeft, ExternalLink } from 'lucide-react';
+import ScreenshotViewer from '@/components/ScreenshotViewer';
 import { createClient } from '@/lib/supabase/server';
 import { prisma } from '@/lib/prisma';
 
@@ -153,11 +154,23 @@ export default async function ConceptPage({ params }: { params: Params }) {
                 {section.body}
               </p>
 
+              {section.bullets && (
+                <ul className="mt-3 space-y-1.5 list-disc list-inside text-gray-600 dark:text-zinc-300 text-[15px] leading-relaxed">
+                  {section.bullets.map((bullet, j) => (
+                    <li key={j}>{bullet}</li>
+                  ))}
+                </ul>
+              )}
+
               {section.code && (
                 <CodeBlock
                   language={section.code.language}
                   content={section.code.content}
                 />
+              )}
+
+              {section.screenshots && (
+                <ScreenshotViewer screenshots={section.screenshots} />
               )}
             </section>
           ))}

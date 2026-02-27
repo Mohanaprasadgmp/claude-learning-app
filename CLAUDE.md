@@ -36,6 +36,16 @@ Run from inside `claude-learning-app/`:
 
 **Dev Server Caching:** After `prisma generate`, restart `npm run dev` — the Prisma client singleton is cached in `globalThis` and won't pick up new models until the process restarts.
 
+### Screenshots
+
+Each concept section can optionally display a screenshot below its code block via the `screenshot` field on `ConceptSection`:
+
+```typescript
+screenshot?: { src: string; alt: string }
+```
+
+Screenshots are stored in `public/screenshots/[concept-slug]/`. **When adding a new concept, always create the matching folder** `public/screenshots/[concept-slug]/` so images can be dropped in later. The `src` field is relative to `public/`, e.g. `/screenshots/getting-started/installation.png`.
+
 ### Data Flow
 
 **Concept content** is static data in `src/data/concepts.ts` — an array of `Concept` objects with sections, code blocks, difficulty, and references. Not DB-driven.

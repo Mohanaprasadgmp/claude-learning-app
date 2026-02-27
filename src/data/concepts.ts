@@ -10,10 +10,15 @@ export type Difficulty = "Beginner" | "Intermediate" | "Advanced";
 export interface ConceptSection {
   heading: string;
   body: string;
+  bullets?: string[];
   code?: {
     language: string;
     content: string;
   };
+  screenshots?: {
+    src: string;
+    alt: string;
+  }[];
 }
 
 export interface ConceptReference {
@@ -62,6 +67,7 @@ export const concepts: Concept[] = [
       {
         heading: "Overview",
         body: "Claude Code is Anthropic's official CLI that brings Claude directly into your terminal. It can read files, run commands, edit code, and navigate your entire codebase — all through natural language. You interact with it conversationally, and it takes actions on your behalf with your permission.",
+        
       },
       {
         heading: "Installation",
@@ -78,6 +84,9 @@ claude --version
 cd my-project
 claude`,
         },
+        screenshots: [
+          { src: "/screenshots/getting-started/Installation.png", alt: "Terminal showing npm install of @anthropic-ai/claude-code and claude --version outputting 2.1.62" },
+        ],
       },
       {
         heading: "How It Works",
@@ -98,6 +107,9 @@ claude
 > Add a dark mode toggle to the header component
 > Run the tests and fix any failures`,
         },
+        screenshots: [
+          { src: "/screenshots/getting-started/FirstSession.png", alt: "Claude Code interactive session showing natural language instructions and tool call approvals" },
+        ],
       },
       {
         heading: "Tips",
@@ -139,7 +151,7 @@ Claude: I'll analyze your codebase to understand its structure
       },
       {
         heading: "CLAUDE.md File Locations",
-        body: "Claude recognizes three distinct CLAUDE.md files in three common locations. Each serves a different scope — project-shared, personal, or global across all projects.",
+        body: "Claude recognizes three distinct CLAUDE.md files in three common locations. Each serves a different scope — project-shared, personal, or global across all projects. Below images shows the file locations and their scopes, where the first one is GLOBAL CLAUDE.md file at ~/.claude/CLAUDE.md applying instructions across all projects, and the second one shows CLAUDE.md and CLAUDE.local.md file.",
         code: {
           language: "text",
           content: `CLAUDE.md
@@ -157,26 +169,17 @@ CLAUDE.local.md (manually created)
   • Contains instructions you want Claude to follow everywhere
   • Your personal global defaults`,
         },
-      },
-      {
-        heading: "Adding Custom Instructions",
-        body: "You can customize how Claude behaves by adding instructions to CLAUDE.md. Use the # command to enter \"memory mode\" — this lets you edit CLAUDE.md intelligently without opening the file. Claude merges the instruction automatically.",
-        code: {
-          language: "text",
-          content: `# Inside a Claude Code session, type # followed by your instruction:
-# Use comments sparingly. Only comment complex code.
 
-# Claude will merge this into your CLAUDE.md automatically.
-
-# More examples:
-# Always use TypeScript strict mode
-# Never use var, only const and let
-# Prefer named exports over default exports`,
-        },
+        
+        screenshots: [
+          { src: "/screenshots/claude-md/Global Claude.png", alt: "Global CLAUDE.md file at ~/.claude/CLAUDE.md applying instructions across all projects" },
+          { src: "/screenshots/claude-md/Claude.png", alt: "CLAUDE.md file locations showing project, local, and global scopes" },
+        ],
       },
+    
       {
         heading: "Tips",
-        body: "Use /init at the start of every new project — don't write CLAUDE.md by hand. Put personal preferences in CLAUDE.local.md so teammates aren't affected. Use ~/.claude/CLAUDE.md for habits that apply everywhere (tone, comment style, language preferences). Use the # command mid-session to update instructions on the fly without leaving Claude Code.",
+        body: "Use /init at the start of every new project — don't write CLAUDE.md by hand. Put personal preferences in CLAUDE.local.md so teammates aren't affected. Use ~/.claude/CLAUDE.md for habits that apply everywhere (tone, comment style, language preferences).",
       },
     ],
   },
@@ -219,6 +222,12 @@ claude --resume <session-id>
 # Read-only mode (no file writes or bash execution)
 claude --read-only`,
         },
+        screenshots: [
+          {
+            src: "/screenshots/cli-commands/LaunchFlag.png",
+            alt: "CLI launch flags in action",
+          },
+        ],
       },
       {
         heading: "Slash Commands (In-Session)",
@@ -237,6 +246,12 @@ claude --read-only`,
 /fast          — Toggle fast mode (optimized for speed)
 /vim           — Toggle vim keybindings`,
         },
+        screenshots: [
+          {
+            src: "/screenshots/cli-commands/Slash.png",
+            alt: "Slash commands in action",
+          },
+        ],
       },
       {
         heading: "Custom Commands",
@@ -263,6 +278,12 @@ Testing conventions:
 # Invoke with arguments
 /write_tests the use-auth.ts file in the hooks directory`,
         },
+        screenshots: [
+          {
+            src: "/screenshots/cli-commands/CustomCommand.png",
+            alt: "Custom commands in action",
+          },
+        ],
       },
       {
         heading: "Output & Scripting",
@@ -371,7 +392,12 @@ Claude: Interrupted. I was running: npm run build
       },
       {
         heading: "Rewinding Conversations",
-        body: "During long conversations, you might accumulate context that becomes irrelevant or distracting. For instance, if Claude encounters an error and spends time debugging it, that back-and-forth discussion might not be useful for the next task.\n\nYou can rewind the conversation by pressing Escape twice. This shows you all the messages you've sent, allowing you to jump back to an earlier point and continue from there. This technique helps you:\n\n• Maintain valuable context (like Claude's understanding of your codebase)\n• Remove distracting or irrelevant conversation history\n• Keep Claude focused on the current task",
+        body: "During long conversations, you might accumulate context that becomes irrelevant or distracting. For instance, if Claude encounters an error and spends time debugging it, that back-and-forth discussion might not be useful for the next task.\n\nYou can rewind the conversation by pressing Escape twice. This shows you all the messages you've sent, allowing you to jump back to an earlier point and continue from there. This technique helps you:",
+        bullets: [
+          "Maintain valuable context (like Claude's understanding of your codebase)",
+          "Remove distracting or irrelevant conversation history",
+          "Keep Claude focused on the current task",
+        ],
         code: {
           language: "text",
           content: `# Press Escape twice to enter rewind mode
@@ -402,24 +428,6 @@ Claude: Interrupted.
 
 # Redirect to something narrower:
 > Just write tests for the formatDate function first`,
-        },
-      },
-      {
-        heading: "Combining Escape with Memories",
-        body: "One of the most powerful applications of the escape technique is fixing repetitive errors. When Claude makes the same mistake repeatedly across different conversations, you can:\n\n• Press Escape to stop the current response\n• Use the # shortcut to add a memory about the correct approach\n• Continue the conversation with the corrected information\n\nThis prevents Claude from making the same error in future conversations on your project.",
-        code: {
-          language: "text",
-          content: `# Claude keeps using var instead of const:
-[Claude: var result = await fetchUser(id)...]
-
-# Press Escape to interrupt
-Esc
-
-# Add a memory using the # shortcut:
-# Never use var — always use const or let
-
-# Claude writes the memory to CLAUDE.md and resumes
-# Future responses will follow the rule automatically`,
         },
       },
       {
@@ -525,6 +533,115 @@ claude --read-only
     ],
   },
   {
+    slug: "settings-json",
+    title: "settings.json vs settings.local.json",
+    emoji: "⚙️",
+    category: "Core CLI",
+    difficulty: "Beginner",
+    released: true,
+    shortDesc:
+      "Configure Claude Code globally or per-project, and keep secrets out of version control.",
+    sections: [
+      {
+        heading: "Overview",
+        body: "Claude Code uses two layered configuration files to control its behaviour. `settings.json` is the shared project config (committed to git), while `settings.local.json` is a machine-specific override that stays out of version control. Together they let teams share a baseline while each developer keeps their own personal tweaks.",
+      },
+      {
+        heading: "settings.json — Shared Project Config",
+        body: "Lives at `.claude/settings.json` inside your project. Commit this file to share consistent tool permissions, hooks, and environment defaults with everyone on the team. Ideal for rules that should apply to all contributors: which tools Claude can auto-approve, custom slash-command hooks, or model preferences.",
+        code: {
+          language: "json",
+          content: `// .claude/settings.json  (committed to git)
+{
+  "permissions": {
+    "allow": ["Bash(npm run *)", "Read", "Write", "Edit"],
+    "deny": []
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [{ "type": "command", "command": "npm run lint --silent" }]
+      }
+    ]
+  }
+}`,
+        },
+      },
+      {
+        heading: "settings.local.json — Personal Overrides",
+        body: "Lives at `.claude/settings.local.json` and is git-ignored by default. Use it for anything you don't want to share: personal API keys, machine-specific paths, or a wider auto-approve list that suits your own workflow. Settings here are merged on top of `settings.json`, so you only need to specify what you're overriding.",
+        screenshots: [
+          {
+            src: "/screenshots/Setting.png",
+            alt: "Claude Code settings.local.json personal overrides",
+          },
+        ],
+        code: {
+          language: "json",
+          content: `// .claude/settings.local.json  (git-ignored)
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(git *)",
+      "Read",
+      "Write",
+      "Edit",
+      "Bash(npx prisma *)"
+    ]
+  },
+  "env": {
+    "MY_PERSONAL_API_KEY": "sk-..."
+  }
+}`,
+        },
+      },
+      {
+        heading: "Merge Order",
+        body: "Think of it as three layers stacked on top of each other. Claude Code reads all three files and combines them — the file closest to you (settings.local.json) always wins if the same setting appears in multiple places. Nothing is lost from lower layers; only conflicting keys get overwritten.",
+        code: {
+          language: "text",
+          content: `Layer 1 — Global (applies to every project on your machine)
+  ~/.claude/settings.json
+
+    Layer 2 — Project shared (committed, applies to all teammates)
+      .claude/settings.json
+
+        Layer 3 — Your local overrides (git-ignored, your machine only)
+          .claude/settings.local.json   ← wins on conflict
+
+Example: if Layer 1 allows ["Read"] and Layer 3 allows ["Read", "Write"],
+the final result is ["Read", "Write"] — layers add, not replace.`,
+        },
+      },
+      {
+        heading: "What Belongs Where",
+        body: "A simple rule of thumb: if every team member needs it, put it in `settings.json`. If it's personal, machine-specific, or contains a secret, put it in `settings.local.json`. Never commit API keys or personal access tokens — use the local file or environment variables injected outside Claude Code.",
+        code: {
+          language: "text",
+          content: `settings.json (commit)         settings.local.json (don't commit)
+──────────────────────────     ──────────────────────────────────
+Shared auto-approve rules      Personal wider permissions
+Project lint/format hooks      Personal API keys or tokens
+Model preferences for CI       Machine-specific binary paths
+Custom slash-command hooks     Dev-only env var overrides`,
+        },
+      },
+      {
+        heading: "Tips",
+        body: "Add `.claude/settings.local.json` to your global `.gitignore` so it can never be accidentally committed. If you're bootstrapping a new project, start with an empty `settings.json` and let each developer build their own `settings.local.json`. Review your team's `settings.json` in code review just like any other config file — it controls what Claude can do automatically.",
+      },
+    ],
+    references: [
+      {
+        label: "Claude Code Settings Docs",
+        url: "https://docs.anthropic.com/en/docs/claude-code/settings",
+        description: "Official reference for all available settings fields.",
+      },
+    ],
+  },
+  {
     slug: "plan-vs-think-mode",
     title: "Plan Mode vs Think Mode",
     emoji: "📋",
@@ -611,10 +728,20 @@ Shift + Tab  (press once if auto-accepting edits)
 [Claude reads 12 files, identifies 4 affected components...]
 [Claude writes plan — awaiting your approval]`,
         },
+        screenshots: [
+          { src: "/screenshots/plan-vs-think-mode/Plan.png", alt: "Plan mode in action" },
+        ],
       },
       {
         heading: "Thinking Modes",
-        body: "Claude offers different levels of reasoning through \"thinking\" modes. These allow Claude to spend more time reasoning about complex problems before providing solutions.\n\nThe available thinking modes include:\n\n• \"Think\" - Basic reasoning\n• \"Think more\" - Extended reasoning\n• \"Think a lot\" - Comprehensive reasoning\n• \"Think longer\" - Extended time reasoning\n• \"Ultrathink\" - Maximum reasoning capability\n\nEach mode gives Claude progressively more tokens to work with, allowing for deeper analysis of challenging problems.",
+        body: "Claude offers different levels of reasoning through \"thinking\" modes. These allow Claude to spend more time reasoning about complex problems before providing solutions. Each mode gives Claude progressively more tokens to work with, allowing for deeper analysis of challenging problems.",
+        bullets: [
+          "\"Think\" - Basic reasoning",
+          "\"Think more\" - Extended reasoning",
+          "\"Think a lot\" - Comprehensive reasoning",
+          "\"Think longer\" - Extended time reasoning",
+          "\"Ultrathink\" - Maximum reasoning capability",
+        ],
         code: {
           language: "text",
           content: `# Use thinking modes by including them in your prompt:
