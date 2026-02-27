@@ -36,6 +36,7 @@ export interface Concept {
   shortDesc: string;
   sections: ConceptSection[];
   released?: boolean;
+  releaseDate?: string;
   references?: ConceptReference[];
 }
 
@@ -947,7 +948,6 @@ architecture.md     ← key architectural decisions`,
         },
         screenshots: [
           { src: "/screenshots/auto-memory/MemoryLocation.png", alt: "Memory directory location" },
-          { src: "/screenshots/auto-memory/AutoMemory.png", alt: "Auto memory in action" },
         ],
       },
       {
@@ -975,6 +975,9 @@ searchParams is a Promise in Next.js 15+ — always await it.
 - Use "use client" directive for interactive components
 - CategoryFilter uses URL search params, not useState`,
         },
+        screenshots: [
+          { src: "/screenshots/auto-memory/AutoMemory.png", alt: "Auto memory in action" },
+        ],
       },
       {
         heading: "Managing Memory",
@@ -992,9 +995,22 @@ searchParams is a Promise in Next.js 15+ — always await it.
         ],
       },
       {
+        heading: "Disabling Auto Memory",
+        body: "Auto memory is enabled by default. You can disable it globally for all projects or for a single project by setting autoMemoryEnabled to false in the respective settings file.",
+        code: {
+          language: "json",
+          content: `// Disable for all projects — ~/.claude/settings.json
+{ "autoMemoryEnabled": false }
+
+// Disable for a single project — .claude/settings.json
+{ "autoMemoryEnabled": false }`,
+        },
+      },
+      {
         heading: "Tips",
         body: "Keep MEMORY.md under 200 lines — content beyond that gets truncated. Link to detailed topic files for long-form notes. Ask Claude to review its memory at the start of complex sessions to ensure it's working from accurate context.",
-      },
+      }
+      
     ],
   },
   {
@@ -1044,6 +1060,28 @@ Context freed: ~45,000 tokens
 > /compact Focus on the authentication work we did,
   keep the file structure summary`,
         },
+        screenshots: [
+          { src: "/screenshots/context-management/Compact.png", alt: "The /compact command in action" },
+        ],
+      },
+      {
+        heading: "The /clear Command",
+        body: "The /clear command wipes the entire conversation context and starts fresh. Unlike /compact which summarizes and compresses, /clear gives you a completely blank slate. Use it when the current context is too noisy, you're switching to an unrelated task, or Claude has gone off track and needs a hard reset.",
+        code: {
+          language: "text",
+          content: `# Wipe the context and start fresh:
+> /clear
+
+# When to use /clear vs /compact:
+# /compact — keep working on the same task, just compress history
+# /clear   — done with this task entirely, starting something new
+
+> /clear
+[Conversation context cleared — memory files still intact]`,
+        },
+        screenshots: [
+          { src: "/screenshots/context-management/Clear.png", alt: "The /clear command in action" },
+        ],
       },
       {
         heading: "Best Practices",
@@ -1168,7 +1206,8 @@ messages = [
     emoji: "🤖",
     category: "Automation",
     difficulty: "Advanced",
-    released: true,
+    released: false,
+    releaseDate: "2026-03-01",
     shortDesc:
       "Spawn specialized subagents for parallel, isolated, and focused tasks.",
     sections: [
@@ -1272,7 +1311,8 @@ Task(
     emoji: "🪝",
     category: "Automation",
     difficulty: "Advanced",
-    released: true,
+    released: false,
+    releaseDate: "2026-03-01",
     shortDesc:
       "Run shell commands automatically before or after Claude's tool calls.",
     sections: [
@@ -1391,7 +1431,8 @@ exit 0   # Zero exit allows the tool call to proceed`,
     emoji: "🎯",
     category: "Automation",
     difficulty: "Intermediate",
-    released: true,
+    released: false,
+    releaseDate: "2026-03-01",
     shortDesc:
       "Create custom slash commands that expand into full prompts for repeated workflows.",
     sections: [
@@ -1481,7 +1522,8 @@ Output a structured review with:
     emoji: "🌳",
     category: "Automation",
     difficulty: "Advanced",
-    released: true,
+    released: false,
+    releaseDate: "2026-03-01",
     shortDesc:
       "Isolate experimental changes in git worktrees for safe parallel development.",
     sections: [
@@ -1567,7 +1609,8 @@ Task(
     emoji: "🔌",
     category: "Integration",
     difficulty: "Advanced",
-    released: true,
+    released: false,
+    releaseDate: "2026-03-01",
     shortDesc:
       "Connect Claude to external tools, databases, and services via MCP servers.",
     sections: [
@@ -1669,7 +1712,8 @@ await server.connect(transport);`,
     emoji: "⚙️",
     category: "Integration",
     difficulty: "Intermediate",
-    released: true,
+    released: false,
+    releaseDate: "2026-03-01",
     shortDesc:
       "Configure Claude Code behavior through settings files at user and project level.",
     sections: [

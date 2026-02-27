@@ -25,10 +25,15 @@ export default function ConceptCard({ concept, compact = false }: ConceptCardPro
       <CardContent className={`relative ${compact ? 'p-4' : 'p-6'}`}>
         {/* Coming Soon badge */}
         {!released && (
-          <div className="absolute top-3 right-3">
+          <div className="absolute top-3 right-3 flex flex-col items-end gap-1">
             <span className="inline-flex items-center rounded-full border border-zinc-300 dark:border-zinc-600 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 text-[10px] font-medium text-zinc-400 dark:text-zinc-500">
               Coming Soon
             </span>
+            {concept.releaseDate && (
+              <span className="text-[9px] text-zinc-400 dark:text-zinc-500">
+                {new Date(concept.releaseDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+              </span>
+            )}
           </div>
         )}
 
