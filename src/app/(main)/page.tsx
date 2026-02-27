@@ -4,12 +4,14 @@ import CategoryFilter from '@/components/CategoryFilter';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Linkedin, Mail } from 'lucide-react';
+import ToastHandler from '@/components/ToastHandler';
 
-type SearchParams = Promise<{ category?: string }>;
+type SearchParams = Promise<{ category?: string; toast?: string }>;
 
 export default async function Home({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
   const activeCategory = params.category || '';
+  const toastParam = params.toast;
 
   const filtered =
     activeCategory && ALL_CATEGORIES.includes(activeCategory as ConceptCategory)
@@ -18,6 +20,7 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a] text-gray-900 dark:text-white transition-colors">
+      <ToastHandler toastParam={toastParam} />
       <main className="mx-auto max-w-7xl px-6 py-10">
         {/* Hero */}
         <div className="mb-10">

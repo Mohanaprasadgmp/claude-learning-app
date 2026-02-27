@@ -25,7 +25,7 @@ export async function login(prevState: AuthState, formData: FormData): Promise<A
     return { error: error.message }
   }
 
-  redirect('/')
+  redirect('/?toast=login')
 }
 
 export async function signup(prevState: AuthState, formData: FormData): Promise<AuthState> {
