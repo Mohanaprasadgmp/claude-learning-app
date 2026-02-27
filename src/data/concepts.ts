@@ -910,10 +910,30 @@ mcp__*        — Tools from connected MCP servers`,
       {
         heading: "Overview",
         body: "Auto Memory gives Claude Code a persistent memory directory where it can save and retrieve information across sessions. Unlike conversation context (which resets each session), memory files persist indefinitely. Claude uses them to remember user preferences, architectural decisions, debugging insights, and patterns learned from corrections.",
+        screenshots: [
+          { src: "/screenshots/auto-memory/MemoryWork.png", alt: "How auto memory works" },
+        ],
+      },
+      {
+        heading: "How Are Memories Stored?",
+        body: "There are three ways memories get written:",
+        bullets: [
+          "Automatically during the session by Claude",
+          'Manually via /memory (similar to CLAUDE.md) or by directly editing the file',
+          'When triggered by the user — "remember that ___"',
+        ],
+        code: {
+          language: "text",
+          content: `> Remember that we like files in this project named this way.
+● Recalled 1 memory, wrote 1 memory`,
+        },
+        screenshots: [
+          { src: "/screenshots/auto-memory/MemoryRemember.png", alt: "Claude remembering a user instruction" },
+        ],
       },
       {
         heading: "Memory Directory",
-        body: "Claude Code creates a memory directory per project under your home directory. The main file is MEMORY.md, which is always loaded into context. Additional topic-specific files can be created and linked from MEMORY.md.",
+        body: "Claude Code creates a memory directory per project under your home directory. The main file is MEMORY.md, which is always loaded into context — but only the first 200 lines are read; anything beyond that is truncated. Additional topic-specific files can be created and linked from MEMORY.md for detailed notes.",
         code: {
           language: "text",
           content: `# Memory directory location:
@@ -925,6 +945,10 @@ debugging.md        ← linked from MEMORY.md for details
 patterns.md         ← code patterns and conventions
 architecture.md     ← key architectural decisions`,
         },
+        screenshots: [
+          { src: "/screenshots/auto-memory/MemoryLocation.png", alt: "Memory directory location" },
+          { src: "/screenshots/auto-memory/AutoMemory.png", alt: "Auto memory in action" },
+        ],
       },
       {
         heading: "What Gets Saved",
@@ -963,6 +987,9 @@ searchParams is a Promise in Next.js 15+ — always await it.
 > Forget the note about the old database schema
 > Update the architecture memory with the new API structure`,
         },
+        screenshots: [
+          { src: "/screenshots/auto-memory/Memory.png", alt: "Managing memory in Claude Code" },
+        ],
       },
       {
         heading: "Tips",

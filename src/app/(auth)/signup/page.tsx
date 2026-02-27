@@ -80,7 +80,7 @@ export default function SignupPage() {
               id="name"
               name="name"
               type="text"
-              placeholder="Mohanaprasad"
+              placeholder="John Doe"
               required
               autoComplete="name"
               aria-invalid={!!state.fieldErrors?.name}
