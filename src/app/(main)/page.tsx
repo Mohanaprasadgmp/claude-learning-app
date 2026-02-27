@@ -23,29 +23,7 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
       <ToastHandler toastParam={toastParam} />
       <main className="mx-auto max-w-7xl px-6 py-10">
         {/* Hero */}
-        <div className="mb-10">
-          <h2 className="text-3xl font-extrabold tracking-tight mb-3">
-            Master{' '}
-            <span className="bg-gradient-to-r from-amber-500 to-orange-500 dark:from-amber-400 dark:to-orange-400 bg-clip-text text-transparent">
-              Claude Code
-            </span>
-          </h2>
-          <p className="text-gray-500 dark:text-zinc-400 text-base max-w-xl mb-4">
-            From CLI basics to advanced agentic workflows — every core concept explained with
-            examples, code snippets, and tips from real usage.
-          </p>
-          <div className="flex flex-wrap gap-2">
-            <Badge variant="outline" className="border-gray-300 dark:border-zinc-700 text-gray-500 dark:text-zinc-400">
-              {concepts.length} concepts
-            </Badge>
-            <Badge variant="outline" className="border-gray-300 dark:border-zinc-700 text-gray-500 dark:text-zinc-400">
-              5 categories
-            </Badge>
-          </div>
-        </div>
-
-        <Separator className="my-8 bg-gray-200 dark:bg-zinc-800" />
-
+       
         {/* Category filter */}
         <div className="mb-8">
           <CategoryFilter categories={ALL_CATEGORIES} activeCategory={activeCategory} />
