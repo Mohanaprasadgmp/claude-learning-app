@@ -1482,182 +1482,76 @@ main();
     sections: [
       {
         heading: "Overview",
-        body: "Skills are custom slash commands you define for Claude Code. Each skill maps a short command (like /commit or /review-pr) to a detailed prompt that gets expanded when the command is invoked. They're stored as markdown files and can be shared across your team. Skills eliminate the need to retype complex, repeated instructions.",
+        body: "Skills are custom slash commands you define for Claude Code. Each skill lives in its own directory with a SKILL.md file — YAML frontmatter declares the command name and description, and the markdown body is the prompt Claude follows when the skill is invoked. Skills can be personal (~/. claude/skills/) or project-scoped (.claude/skills/), and can be triggered manually or automatically when Claude recognises a matching request.",
       },
       {
-        heading: "Creating a Skill",
-        body: "Skills are markdown files stored in ~/.claude/skills/ (user-wide) or .claude/skills/ (project-specific). The filename becomes the command name. The file content is the prompt that gets expanded.",
+        heading: "Step 1 — Create the Skill Directory",
+        body: "Each skill lives in its own directory. Use ~/.claude/skills/ for personal skills available across all your projects, or .claude/skills/ for project-specific skills you can commit to git. The directory name becomes the slash command.",
         code: {
           language: "bash",
-          content: `# Create a project-specific skill:
-mkdir -p .claude/skills
+          content: `# Personal skill — available in all your projects:
+mkdir -p ~/.claude/skills/explain-code
 
-# Create a skill file:
-cat > .claude/skills/commit.md << 'EOF'
-Create a git commit following these steps:
+# Project-specific skill — commit to git so the team shares it:
+mkdir -p .claude/skills/explain-code`,
+        },
+        
+      },
+      {
+        heading: "Step 2 — Write SKILL.md",
+        body: "Every skill needs a SKILL.md file with two parts: YAML frontmatter (between --- markers) that tells Claude when to use the skill, and markdown content with the instructions Claude follows when invoked. The name field becomes the /slash-command, and the description helps Claude decide when to load it automatically.",
+        code: {
+          language: "markdown",
+          content: `# ~/.claude/skills/explain-code/SKILL.md
 
-1. Run \`git status\` to see all changes
-2. Run \`git diff\` to review what changed
-3. Write a commit message in this format:
-   - First line: imperative mood, under 72 chars
-   - Body: explain WHY not WHAT
-   - Footer: Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
-4. Stage appropriate files (never .env or secrets)
-5. Commit and verify with git status
-EOF
+---
+name: explain-code
+description: Explains code with visual diagrams and analogies. Use when explaining how code works, teaching about a codebase, or when the user asks "how does this work?"
+---
 
-# Now use it:
-claude
-> /commit`,
+When explaining code, always include:
+
+1. **Start with an analogy**: Compare the code to something from everyday life
+2. **Draw a diagram**: Use ASCII art to show the flow, structure, or relationships
+3. **Walk through the code**: Explain step-by-step what happens
+4. **Highlight a gotcha**: What's a common mistake or misconception?
+
+Keep explanations conversational. For complex concepts, use multiple analogies.`,
         },
         screenshots: [
-          { src: "/screenshots/skills/Skill.png", alt: "Creating a skill file in .claude/skills/" },
+          { src: "/screenshots/skills/Skill.png", alt: "Creating the skill directory in ~/.claude/skills/" },
         ],
       },
       {
-        heading: "Using Skills",
-        body: "Invoke skills with the slash command syntax: /skill-name. You can also pass arguments after the command name. Claude Code expands the skill's markdown content into a full prompt and executes it.",
+        heading: "Step 3 — Test the Skill",
+        body: "You can invoke a skill two ways. Let Claude pick it up automatically by asking something that matches the description, or invoke it directly with the slash command and any arguments. Either way, Claude expands the SKILL.md content into a full prompt and executes it.",
         code: {
           language: "text",
-          content: `# Invoke built-in and custom skills:
-/commit              ← run your commit skill
-/review-pr 123       ← review PR #123
-/deploy staging      ← deploy to staging environment
-/test auth           ← run auth-related tests
+          content: `# Let Claude invoke it automatically (matches description):
+How does this code work?
 
-# Skills can receive arguments via $ARGUMENTS:
-# In your skill file, use $ARGUMENTS to reference them
-# Example skill content:
-"Review PR #$ARGUMENTS for security issues and code quality..."`,
+# Or invoke it directly with the skill name:
+/explain-code src/auth/login.ts
+
+# Either way Claude should include an analogy and ASCII diagram.`,
         },
-      },
-      {
-        heading: "Skill File Structure",
-        body: "A skill file is just markdown — but it's a detailed prompt. Good skills include context about the task, step-by-step instructions, quality standards, and what to output at the end.",
-        code: {
-          language: "markdown",
-          content: `# .claude/skills/review-pr.md
-
-Review the pull request #$ARGUMENTS.
-
-Steps:
-1. Run \`gh pr view $ARGUMENTS\` to get PR details
-2. Run \`gh pr diff $ARGUMENTS\` to see all changes
-3. Analyze for:
-   - Security vulnerabilities (OWASP Top 10)
-   - Performance issues
-   - Missing error handling
-   - TypeScript type safety
-   - Test coverage gaps
-
-Output a structured review with:
-- Summary (1 paragraph)
-- Issues Found (severity: critical/major/minor)
-- Suggested Improvements
-- Overall assessment (approve/request changes)`,
-        },
+        screenshots: [
+          { src: "/screenshots/skills/Skill Work.png", alt: "Testing the skill directory in ~/.claude/skills/" },
+        ],
       },
       {
         heading: "Tips",
-        body: "Create skills for any workflow you repeat more than twice. Store project skills in .claude/skills/ and commit them to git so the whole team benefits. User-level skills in ~/.claude/skills/ apply across all your projects. Keep skill prompts specific and detailed — vague skills produce vague results.",
+        body: "Write a tight description — it's what Claude uses to decide whether to auto-invoke the skill. Keep SKILL.md instructions specific and detailed; vague skills produce vague results. Commit project skills to git so the whole team benefits from them.",
       },
     ],
   },
-  {
-    slug: "worktrees",
-    title: "Worktrees",
-    emoji: "🌳",
-    category: "Automation",
-    difficulty: "Advanced",
-    released: false,
-    releaseDate: "2026-03-01",
-    shortDesc:
-      "Isolate experimental changes in git worktrees for safe parallel development.",
-    sections: [
-      {
-        heading: "Overview",
-        body: "Git worktrees let you check out multiple branches simultaneously in separate directories. Claude Code integrates with worktrees to give subagents isolated environments for experimental changes — they can write, edit, and test without touching your main working directory. If the experiment works, you merge; if not, you discard.",
-      },
-      {
-        heading: "What Are Worktrees?",
-        body: "A git worktree is an additional working directory linked to the same git repository. Each worktree has its own branch checked out independently. Claude Code creates worktrees in .claude/worktrees/ and automatically cleans them up.",
-        code: {
-          language: "bash",
-          content: `# Git worktrees basics:
-git worktree list                   # show all worktrees
-git worktree add ../feature-branch feature-branch  # add worktree
-git worktree remove ../feature-branch              # remove worktree
-
-# Claude Code creates them automatically in:
-.claude/worktrees/<name>/
-
-# Each worktree is a full checkout:
-.claude/worktrees/
-├── refactor-auth/      ← branch: claude/refactor-auth
-│   └── [full project copy checked out here]
-└── experiment-1/       ← branch: claude/experiment-1
-    └── [another full project copy]`,
-        },
-      },
-      {
-        heading: "Using Worktrees in Claude Code",
-        body: "Use the /worktree command inside Claude Code to create an isolated environment for the current session. The session's working directory switches to the worktree. Changes are isolated on a new branch.",
-        code: {
-          language: "text",
-          content: `# Inside Claude Code session:
-> /worktree my-experiment
-
-[Claude creates a new worktree branch: claude/my-experiment]
-[Session working directory switches to .claude/worktrees/my-experiment/]
-
-> Now try refactoring the authentication module and see if all tests pass
-
-[Claude makes changes only in the worktree branch]
-[Main branch and working directory are untouched]
-
-# When done:
-> The refactoring looks good, merge it into main
-[Claude merges the worktree branch back]
-
-# Or discard:
-> Actually, let's abandon this approach
-[Worktree is removed, no changes to main branch]`,
-        },
-      },
-      {
-        heading: "Worktree Isolation for Subagents",
-        body: "Subagents can be launched with worktree isolation, getting their own temporary branch. This is used for exploratory tasks where you want to evaluate changes before committing to them.",
-        code: {
-          language: "text",
-          content: `# In Claude Code, subagents with worktree isolation:
-Task(
-    isolation="worktree",
-    prompt="Try converting all class components to hooks and verify tests pass"
-)
-
-# What happens:
-# 1. Claude creates .claude/worktrees/<random-name>/
-# 2. Subagent checks out a new branch there
-# 3. Subagent makes all changes in isolation
-# 4. If tests pass → report success, offer to merge
-# 5. If tests fail → report failure, discard worktree
-# 6. Main working directory untouched throughout`,
-        },
-      },
-      {
-        heading: "Tips",
-        body: "Use worktrees for risky refactors, large feature work, or any experiment you might want to discard. Worktrees require more disk space (full checkout per worktree). Clean up old worktrees with git worktree prune. Worktrees are most valuable when combined with subagents for truly autonomous experimentation.",
-      },
-    ],
-  },
-  {
+   {
     slug: "mcp",
     title: "MCP (Model Context Protocol)",
     emoji: "🔌",
     category: "Integration",
     difficulty: "Advanced",
-    released: false,
-    releaseDate: "2026-03-01",
+    released: true,
     shortDesc:
       "Connect Claude to external tools, databases, and services via MCP servers.",
     sections: [
@@ -1754,13 +1648,98 @@ await server.connect(transport);`,
     ],
   },
   {
+    slug: "worktrees",
+    title: "Worktrees",
+    emoji: "🌳",
+    category: "Automation",
+    difficulty: "Advanced",
+    released: true,
+    shortDesc:
+      "Isolate experimental changes in git worktrees for safe parallel development.",
+    sections: [
+      {
+        heading: "Overview",
+        body: "Git worktrees let you check out multiple branches simultaneously in separate directories. Claude Code integrates with worktrees to give subagents isolated environments for experimental changes — they can write, edit, and test without touching your main working directory. If the experiment works, you merge; if not, you discard.",
+      },
+      {
+        heading: "What Are Worktrees?",
+        body: "A git worktree is an additional working directory linked to the same git repository. Each worktree has its own branch checked out independently. Claude Code creates worktrees in .claude/worktrees/ and automatically cleans them up.",
+        code: {
+          language: "bash",
+          content: `# Git worktrees basics:
+git worktree list                   # show all worktrees
+git worktree add ../feature-branch feature-branch  # add worktree
+git worktree remove ../feature-branch              # remove worktree
+
+# Claude Code creates them automatically in:
+.claude/worktrees/<name>/
+
+# Each worktree is a full checkout:
+.claude/worktrees/
+├── refactor-auth/      ← branch: claude/refactor-auth
+│   └── [full project copy checked out here]
+└── experiment-1/       ← branch: claude/experiment-1
+    └── [another full project copy]`,
+        },
+      },
+      {
+        heading: "Using Worktrees in Claude Code",
+        body: "Use the /worktree command inside Claude Code to create an isolated environment for the current session. The session's working directory switches to the worktree. Changes are isolated on a new branch.",
+        code: {
+          language: "text",
+          content: `# Inside Claude Code session:
+> /worktree my-experiment
+
+[Claude creates a new worktree branch: claude/my-experiment]
+[Session working directory switches to .claude/worktrees/my-experiment/]
+
+> Now try refactoring the authentication module and see if all tests pass
+
+[Claude makes changes only in the worktree branch]
+[Main branch and working directory are untouched]
+
+# When done:
+> The refactoring looks good, merge it into main
+[Claude merges the worktree branch back]
+
+# Or discard:
+> Actually, let's abandon this approach
+[Worktree is removed, no changes to main branch]`,
+        },
+      },
+      {
+        heading: "Worktree Isolation for Subagents",
+        body: "Subagents can be launched with worktree isolation, getting their own temporary branch. This is used for exploratory tasks where you want to evaluate changes before committing to them.",
+        code: {
+          language: "text",
+          content: `# In Claude Code, subagents with worktree isolation:
+Task(
+    isolation="worktree",
+    prompt="Try converting all class components to hooks and verify tests pass"
+)
+
+# What happens:
+# 1. Claude creates .claude/worktrees/<random-name>/
+# 2. Subagent checks out a new branch there
+# 3. Subagent makes all changes in isolation
+# 4. If tests pass → report success, offer to merge
+# 5. If tests fail → report failure, discard worktree
+# 6. Main working directory untouched throughout`,
+        },
+      },
+      {
+        heading: "Tips",
+        body: "Use worktrees for risky refactors, large feature work, or any experiment you might want to discard. Worktrees require more disk space (full checkout per worktree). Clean up old worktrees with git worktree prune. Worktrees are most valuable when combined with subagents for truly autonomous experimentation.",
+      },
+    ],
+  }, 
+  {
     slug: "settings",
     title: "Settings & Configuration",
     emoji: "⚙️",
     category: "Integration",
     difficulty: "Intermediate",
-    released: false,
-    releaseDate: "2026-03-01",
+    released: true,
     shortDesc:
       "Configure Claude Code behavior through settings files at user and project level.",
     sections: [
