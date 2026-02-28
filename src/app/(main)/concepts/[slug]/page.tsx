@@ -154,12 +154,12 @@ export default async function ConceptPage({ params }: { params: Params }) {
                 {section.body}
               </p>
 
-              {section.bullets && (
-                <ul className="mt-3 space-y-1.5 list-disc list-inside text-gray-600 dark:text-zinc-300 text-[15px] leading-relaxed">
-                  {section.bullets.map((bullet, j) => (
-                    <li key={j}>{bullet}</li>
+              {section.orderedList && (
+                <ol className="mt-3 space-y-1.5 list-decimal list-inside text-gray-600 dark:text-zinc-300 text-[15px] leading-relaxed">
+                  {section.orderedList.map((item, j) => (
+                    <li key={j}>{item}</li>
                   ))}
-                </ul>
+                </ol>
               )}
 
               {section.code && (
@@ -167,6 +167,20 @@ export default async function ConceptPage({ params }: { params: Params }) {
                   language={section.code.language}
                   content={section.code.content}
                 />
+              )}
+
+              {section.note && (
+                <p className="mt-3 text-gray-600 dark:text-zinc-300 leading-relaxed text-[15px]">
+                  {section.note}
+                </p>
+              )}
+
+              {section.bullets && (
+                <ul className="mt-3 space-y-1.5 list-disc list-inside text-gray-600 dark:text-zinc-300 text-[15px] leading-relaxed">
+                  {section.bullets.map((bullet, j) => (
+                    <li key={j}>{bullet}</li>
+                  ))}
+                </ul>
               )}
 
               {section.screenshots && (

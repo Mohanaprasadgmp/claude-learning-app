@@ -10,6 +10,8 @@ export type Difficulty = "Beginner" | "Intermediate" | "Advanced";
 export interface ConceptSection {
   heading: string;
   body: string;
+  orderedList?: string[];
+  note?: string;
   bullets?: string[];
   code?: {
     language: string;
@@ -1617,67 +1619,188 @@ How does this code work?
         },
       },
       {
-        heading: "Configuring MCP Servers",
-        body: "Add MCP servers to your Claude Code settings. They can be project-specific (.claude/settings.json) or user-wide (~/.claude/settings.json). Each server has a name, command to start it, and optional arguments.",
+        heading: "Installing the Playwright MCP Server",
+        body: "To add the Playwright server to Claude Code, run this command in your terminal (not inside Claude Code):",
+        code: {
+          language: "bash",
+          content: `claude mcp add playwright npx @playwright/mcp@latest`,
+        },
+         screenshots: [
+          { src: "/screenshots/mcp/Tool.png", alt: "The Playwright MCP server installed in Claude Code" },
+          { src: "/screenshots/mcp/Youtube.png", alt: "The Playwright MCP server installed in Claude Code" },
+        ],
+        note: "This command does two things:",
+        bullets: [
+          'Names the MCP server "playwright"',
+          "Provides the command that starts the server locally on your machine",
+        ],
+      },
+      {
+        heading: "Managing Permissions",
+        body: "When you first use MCP server tools, Claude will ask for permission each time. If you get tired of these permission prompts, you can pre-approve the server by editing your settings. Open the .claude/settings.local.json file and add the server to the allow array:",
+        note: "Note the double underscores in mcp__playwright. This allows Claude to use the Playwright tools without asking for permission every time.",
+
         code: {
           language: "json",
-          content: `// .claude/settings.json — MCP server configuration
-{
-  "mcpServers": {
-    "filesystem": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"]
-    },
-    "github": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-github"],
-      "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "\${GITHUB_TOKEN}"
-      }
-    },
-    "postgres": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-postgres", "postgresql://localhost/mydb"]
-    }
+          content: `{
+  "permissions": {
+    "allow": ["mcp__playwright"],
+    "deny": []
   }
 }`,
         },
+       
+         screenshots: [
+          { src: "/screenshots/mcp/Permission.png", alt: "The permission management UI in Claude Code" },
+        ],
       },
       {
-        heading: "Writing an MCP Server",
-        body: "MCP servers can be written in any language with an MCP SDK (TypeScript, Python, Go, Rust). A server defines tools (callable functions), resources (readable data), and prompts (reusable templates).",
+        heading: "Practical Example: Using the Playwright MCP Server to naviagate your app and login using dummy credentials",
+        body: "Here's a real-world example of how the Playwright MCP server can improve your development workflow. Instead of manually testing and tweaking prompts, you can have Claude:",
+       
         code: {
-          language: "typescript",
-          content: `import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { z } from "zod";
-
-const server = new McpServer({ name: "my-server", version: "1.0.0" });
-
-// Register a tool Claude can call
-server.tool(
-  "query_database",
-  "Run a read-only SQL query against the production DB",
-  {
-    query: z.string().describe("The SQL SELECT query to run"),
-  },
-  async ({ query }) => {
-    const result = await db.execute(query);
-    return { content: [{ type: "text", text: JSON.stringify(result) }] };
-  }
-);
-
-// Start the server
-const transport = new StdioServerTransport();
-await server.connect(transport);`,
+          language: "text",
+          content: `"Navigate to localhost:3000, click the login button, and attempt to log in with dummy credentials. If the login fails, modify the prompt to fix it and try again until it works."`,
         },
-      },
-      {
-        heading: "Tips",
-        body: "Start with official MCP servers from the Model Context Protocol GitHub org — they cover filesystem, GitHub, Postgres, Slack, and more. MCP tools appear in Claude as mcp__servername__toolname. Use project-level MCP configs for project-specific integrations and user-level for global tools like GitHub.",
+        screenshots: [
+          { src: "/screenshots/mcp/Tool2.png", alt: "The Playwright MCP server in action" },
+          { src: "/screenshots/mcp/Tool3.png", alt: "The Playwright MCP server in action" },
+        ],
+        note: "Claude will use the browser tools to interact with your app, examine the generated output, and then modify your prompt file to encourage more original and creative designs.",
       },
     ],
   },
+//   {
+//     slug: "plugins",
+//     title: "Plugins",
+//     emoji: "🔌",
+//     category: "Integration",
+//     difficulty: "Intermediate",
+//     released: true,
+//     shortDesc:
+//       "Extend Claude Code with community and custom plugins to add new tools, commands, and capabilities.",
+//     sections: [
+//       {
+//         heading: "Overview",
+//         body: "Plugins extend Claude Code beyond its built-in capabilities. They can add new slash commands, custom tools, MCP server integrations, and workflow automations. Plugins are distributed as npm packages, git repos, or local directories and are registered in your settings files.",
+//       },
+//       {
+//         heading: "How Plugins Work",
+//         body: "A Claude Code plugin is essentially a package that contributes one or more of: MCP servers (new tools Claude can call), skills (slash commands), hooks (lifecycle scripts), or prompt templates. When Claude Code starts, it reads your settings and loads the registered plugins.",
+//         code: {
+//           language: "text",
+//           content: `Plugin
+//   │
+//   ├── MCP Servers   → new tools Claude can call (e.g., mcp__github__*)
+//   ├── Skills        → new slash commands (e.g., /my-command)
+//   ├── Hooks         → lifecycle scripts (PostToolUse, PreToolUse, etc.)
+//   └── Prompts       → reusable prompt templates
+
+// Claude Code reads ~/.claude/settings.json + .claude/settings.json
+//   → loads registered plugins at startup
+//   → exposes their tools / commands in the session`,
+//         },
+//       },
+//       {
+//         heading: "Adding a Plugin via MCP",
+//         body: "The most common plugin format is an MCP server. Use `claude mcp add` to register one. Plugins added this way are saved to your settings automatically and available in every session.",
+//         code: {
+//           language: "bash",
+//           content: `# Add an MCP-based plugin from npm
+// claude mcp add <name> npx <package>
+
+// # Examples:
+// claude mcp add github npx @modelcontextprotocol/server-github
+// claude mcp add filesystem npx @modelcontextprotocol/server-filesystem /path
+// claude mcp add playwright npx @playwright/mcp@latest
+
+// # List installed plugins / MCP servers
+// claude mcp list
+
+// # Remove a plugin
+// claude mcp remove <name>`,
+//         },
+//       },
+//       {
+//         heading: "Registering Plugins in settings.json",
+//         body: "For version-controlled, team-shared plugins, declare them directly in `.claude/settings.json`. This way every contributor gets the same plugins without running any setup commands.",
+//         code: {
+//           language: "json",
+//           content: `// .claude/settings.json
+// {
+//   "mcpServers": {
+//     "github": {
+//       "command": "npx",
+//       "args": ["-y", "@modelcontextprotocol/server-github"],
+//       "env": {
+//         "GITHUB_PERSONAL_ACCESS_TOKEN": "\${GITHUB_TOKEN}"
+//       }
+//     },
+//     "filesystem": {
+//       "command": "npx",
+//       "args": ["-y", "@modelcontextprotocol/server-filesystem", "./src"]
+//     }
+//   }
+// }`,
+//         },
+//       },
+//       {
+//         heading: "Skills as Local Plugins",
+//         body: "Skills are Claude Code's lightweight plugin format for slash commands. Drop a `.md` file into `.claude/skills/` and it becomes a `/skill-name` command. No install step needed — just a markdown file with instructions.",
+//         code: {
+//           language: "text",
+//           content: `# File: .claude/skills/review-pr.md
+// # Becomes: /review-pr command
+
+// # File: .claude/skills/deploy.md
+// # Becomes: /deploy command
+
+// .claude/
+// └── skills/
+//     ├── review-pr.md   → /review-pr
+//     ├── deploy.md      → /deploy
+//     └── audit.md       → /audit`,
+//         },
+//       },
+//       {
+//         heading: "Plugin Permissions",
+//         body: "MCP plugin tools follow the same allow/deny permission model as built-in tools. Tool names are prefixed with `mcp__<server-name>__`. Pre-approve specific tools in your settings to avoid permission prompts on every call.",
+//         code: {
+//           language: "json",
+//           content: `// .claude/settings.local.json
+// {
+//   "permissions": {
+//     "allow": [
+//       "mcp__github__*",
+//       "mcp__playwright__*",
+//       "mcp__filesystem__read_file",
+//       "mcp__filesystem__list_directory"
+//     ],
+//     "deny": [
+//       "mcp__filesystem__write_file"
+//     ]
+//   }
+// }`,
+//         },
+//       },
+//       {
+//         heading: "Tips",
+//         body: "Prefer declaring shared plugins in `.claude/settings.json` (committed) so teammates don't need manual setup. Use `.claude/settings.local.json` for plugins with personal credentials. Keep plugin permissions as narrow as possible — allow specific tool patterns rather than `mcp__server__*` wildcards where you can.",
+//       },
+//     ],
+//     references: [
+//       {
+//         label: "MCP Servers Registry",
+//         url: "https://github.com/modelcontextprotocol/servers",
+//         description: "Official list of community MCP servers you can use as plugins.",
+//       },
+//       {
+//         label: "Claude Code Skills Docs",
+//         url: "https://docs.anthropic.com/en/docs/claude-code/skills",
+//         description: "How to create and use skills as slash commands.",
+//       },
+//     ],
+//   },
   {
     slug: "worktrees",
     title: "Worktrees",

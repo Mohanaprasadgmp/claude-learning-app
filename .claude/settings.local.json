@@ -3,7 +3,10 @@
     "allow": [
       "Bash(npm run:*)",
       "WebFetch(domain:anthropic.skilljar.com)",
-      "Bash(npx prisma:*)"
+      "Bash(npx prisma:*)",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_fill_form",
+      "mcp__playwright__browser_click"
     ],
     "deny": []
   },
@@ -30,7 +33,6 @@
         ]
       }
     ],
-    
     "Notification": [
       {
         "hooks": [
