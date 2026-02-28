@@ -1655,7 +1655,7 @@ How does this code work?
         ],
       },
       {
-        heading: "Practical Example: Using the Playwright MCP Server to naviagate your app and login using dummy credentials",
+        heading: "Practical Example: Using the Playwright MCP Server to naviagate our app and login using dummy credentials",
         body: "Here's a real-world example of how the Playwright MCP server can improve your development workflow. Instead of manually testing and tweaking prompts, you can have Claude:",
        
         code: {
@@ -1669,145 +1669,155 @@ How does this code work?
         note: "Claude will use the browser tools to interact with your app, examine the generated output, and then modify your prompt file to encourage more original and creative designs.",
       },
     ],
+    references: [
+   
+      {
+        label: "MCP Servers",
+        url: "https://code.claude.com/docs/en/mcp#popular-mcp-servers",
+        description: "Official docs on Claude Code MCP servers.",
+      },
+    ],
   },
-//   {
-//     slug: "plugins",
-//     title: "Plugins",
-//     emoji: "🔌",
-//     category: "Integration",
-//     difficulty: "Intermediate",
-//     released: true,
-//     shortDesc:
-//       "Extend Claude Code with community and custom plugins to add new tools, commands, and capabilities.",
-//     sections: [
-//       {
-//         heading: "Overview",
-//         body: "Plugins extend Claude Code beyond its built-in capabilities. They can add new slash commands, custom tools, MCP server integrations, and workflow automations. Plugins are distributed as npm packages, git repos, or local directories and are registered in your settings files.",
-//       },
-//       {
-//         heading: "How Plugins Work",
-//         body: "A Claude Code plugin is essentially a package that contributes one or more of: MCP servers (new tools Claude can call), skills (slash commands), hooks (lifecycle scripts), or prompt templates. When Claude Code starts, it reads your settings and loads the registered plugins.",
-//         code: {
-//           language: "text",
-//           content: `Plugin
-//   │
-//   ├── MCP Servers   → new tools Claude can call (e.g., mcp__github__*)
-//   ├── Skills        → new slash commands (e.g., /my-command)
-//   ├── Hooks         → lifecycle scripts (PostToolUse, PreToolUse, etc.)
-//   └── Prompts       → reusable prompt templates
+  {
+    slug: "plugins",
+    title: "Plugins",
+    emoji: "🧩",
+    category: "Integration",
+    difficulty: "Intermediate",
+    released: false,
+    releaseDate: "March 2",
+    shortDesc:
+      "Extend Claude Code with community and custom plugins to add new tools, commands, and capabilities.",
+    sections: [
+      {
+        heading: "Overview",
+        body: "Plugins extend Claude Code beyond its built-in capabilities. They can add new slash commands, custom tools, MCP server integrations, and workflow automations. Plugins are distributed as npm packages, git repos, or local directories and are registered in your settings files.",
+      },
+      {
+        heading: "How Plugins Work",
+        body: "A Claude Code plugin is essentially a package that contributes one or more of: MCP servers (new tools Claude can call), skills (slash commands), hooks (lifecycle scripts), or prompt templates. When Claude Code starts, it reads your settings and loads the registered plugins.",
+        code: {
+          language: "text",
+          content: `Plugin
+  │
+  ├── MCP Servers   → new tools Claude can call (e.g., mcp__github__*)
+  ├── Skills        → new slash commands (e.g., /my-command)
+  ├── Hooks         → lifecycle scripts (PostToolUse, PreToolUse, etc.)
+  └── Prompts       → reusable prompt templates
 
-// Claude Code reads ~/.claude/settings.json + .claude/settings.json
-//   → loads registered plugins at startup
-//   → exposes their tools / commands in the session`,
-//         },
-//       },
-//       {
-//         heading: "Adding a Plugin via MCP",
-//         body: "The most common plugin format is an MCP server. Use `claude mcp add` to register one. Plugins added this way are saved to your settings automatically and available in every session.",
-//         code: {
-//           language: "bash",
-//           content: `# Add an MCP-based plugin from npm
-// claude mcp add <name> npx <package>
+Claude Code reads ~/.claude/settings.json + .claude/settings.json
+  → loads registered plugins at startup
+  → exposes their tools / commands in the session`,
+        },
+      },
+      {
+        heading: "Adding a Plugin via MCP",
+        body: "The most common plugin format is an MCP server. Use `claude mcp add` to register one. Plugins added this way are saved to your settings automatically and available in every session.",
+        code: {
+          language: "bash",
+          content: `# Add an MCP-based plugin from npm
+claude mcp add <name> npx <package>
 
-// # Examples:
-// claude mcp add github npx @modelcontextprotocol/server-github
-// claude mcp add filesystem npx @modelcontextprotocol/server-filesystem /path
-// claude mcp add playwright npx @playwright/mcp@latest
+# Examples:
+claude mcp add github npx @modelcontextprotocol/server-github
+claude mcp add filesystem npx @modelcontextprotocol/server-filesystem /path
+claude mcp add playwright npx @playwright/mcp@latest
 
-// # List installed plugins / MCP servers
-// claude mcp list
+# List installed plugins / MCP servers
+claude mcp list
 
-// # Remove a plugin
-// claude mcp remove <name>`,
-//         },
-//       },
-//       {
-//         heading: "Registering Plugins in settings.json",
-//         body: "For version-controlled, team-shared plugins, declare them directly in `.claude/settings.json`. This way every contributor gets the same plugins without running any setup commands.",
-//         code: {
-//           language: "json",
-//           content: `// .claude/settings.json
-// {
-//   "mcpServers": {
-//     "github": {
-//       "command": "npx",
-//       "args": ["-y", "@modelcontextprotocol/server-github"],
-//       "env": {
-//         "GITHUB_PERSONAL_ACCESS_TOKEN": "\${GITHUB_TOKEN}"
-//       }
-//     },
-//     "filesystem": {
-//       "command": "npx",
-//       "args": ["-y", "@modelcontextprotocol/server-filesystem", "./src"]
-//     }
-//   }
-// }`,
-//         },
-//       },
-//       {
-//         heading: "Skills as Local Plugins",
-//         body: "Skills are Claude Code's lightweight plugin format for slash commands. Drop a `.md` file into `.claude/skills/` and it becomes a `/skill-name` command. No install step needed — just a markdown file with instructions.",
-//         code: {
-//           language: "text",
-//           content: `# File: .claude/skills/review-pr.md
-// # Becomes: /review-pr command
+# Remove a plugin
+claude mcp remove <name>`,
+        },
+      },
+      {
+        heading: "Registering Plugins in settings.json",
+        body: "For version-controlled, team-shared plugins, declare them directly in `.claude/settings.json`. This way every contributor gets the same plugins without running any setup commands.",
+        code: {
+          language: "json",
+          content: `// .claude/settings.json
+{
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "\${GITHUB_TOKEN}"
+      }
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "./src"]
+    }
+  }
+}`,
+        },
+      },
+      {
+        heading: "Skills as Local Plugins",
+        body: "Skills are Claude Code's lightweight plugin format for slash commands. Drop a `.md` file into `.claude/skills/` and it becomes a `/skill-name` command. No install step needed — just a markdown file with instructions.",
+        code: {
+          language: "text",
+          content: `# File: .claude/skills/review-pr.md
+# Becomes: /review-pr command
 
-// # File: .claude/skills/deploy.md
-// # Becomes: /deploy command
+# File: .claude/skills/deploy.md
+# Becomes: /deploy command
 
-// .claude/
-// └── skills/
-//     ├── review-pr.md   → /review-pr
-//     ├── deploy.md      → /deploy
-//     └── audit.md       → /audit`,
-//         },
-//       },
-//       {
-//         heading: "Plugin Permissions",
-//         body: "MCP plugin tools follow the same allow/deny permission model as built-in tools. Tool names are prefixed with `mcp__<server-name>__`. Pre-approve specific tools in your settings to avoid permission prompts on every call.",
-//         code: {
-//           language: "json",
-//           content: `// .claude/settings.local.json
-// {
-//   "permissions": {
-//     "allow": [
-//       "mcp__github__*",
-//       "mcp__playwright__*",
-//       "mcp__filesystem__read_file",
-//       "mcp__filesystem__list_directory"
-//     ],
-//     "deny": [
-//       "mcp__filesystem__write_file"
-//     ]
-//   }
-// }`,
-//         },
-//       },
-//       {
-//         heading: "Tips",
-//         body: "Prefer declaring shared plugins in `.claude/settings.json` (committed) so teammates don't need manual setup. Use `.claude/settings.local.json` for plugins with personal credentials. Keep plugin permissions as narrow as possible — allow specific tool patterns rather than `mcp__server__*` wildcards where you can.",
-//       },
-//     ],
-//     references: [
-//       {
-//         label: "MCP Servers Registry",
-//         url: "https://github.com/modelcontextprotocol/servers",
-//         description: "Official list of community MCP servers you can use as plugins.",
-//       },
-//       {
-//         label: "Claude Code Skills Docs",
-//         url: "https://docs.anthropic.com/en/docs/claude-code/skills",
-//         description: "How to create and use skills as slash commands.",
-//       },
-//     ],
-//   },
+.claude/
+└── skills/
+    ├── review-pr.md   → /review-pr
+    ├── deploy.md      → /deploy
+    └── audit.md       → /audit`,
+        },
+      },
+      {
+        heading: "Plugin Permissions",
+        body: "MCP plugin tools follow the same allow/deny permission model as built-in tools. Tool names are prefixed with `mcp__<server-name>__`. Pre-approve specific tools in your settings to avoid permission prompts on every call.",
+        code: {
+          language: "json",
+          content: `// .claude/settings.local.json
+{
+  "permissions": {
+    "allow": [
+      "mcp__github__*",
+      "mcp__playwright__*",
+      "mcp__filesystem__read_file",
+      "mcp__filesystem__list_directory"
+    ],
+    "deny": [
+      "mcp__filesystem__write_file"
+    ]
+  }
+}`,
+        },
+      },
+      {
+        heading: "Tips",
+        body: "Prefer declaring shared plugins in `.claude/settings.json` (committed) so teammates don't need manual setup. Use `.claude/settings.local.json` for plugins with personal credentials. Keep plugin permissions as narrow as possible — allow specific tool patterns rather than `mcp__server__*` wildcards where you can.",
+      },
+    ],
+    references: [
+      {
+        label: "MCP Servers Registry",
+        url: "https://github.com/modelcontextprotocol/servers",
+        description: "Official list of community MCP servers you can use as plugins.",
+      },
+      {
+        label: "Claude Code Skills Docs",
+        url: "https://docs.anthropic.com/en/docs/claude-code/skills",
+        description: "How to create and use skills as slash commands.",
+      },
+    ],
+  },
   {
     slug: "worktrees",
     title: "Worktrees",
     emoji: "🌳",
     category: "Automation",
     difficulty: "Advanced",
-    released: true,
+    released: false,
+    releaseDate: "March 4",
     shortDesc:
       "Isolate experimental changes in git worktrees for safe parallel development.",
     sections: [
@@ -1884,6 +1894,127 @@ Task(
       {
         heading: "Tips",
         body: "Use worktrees for risky refactors, large feature work, or any experiment you might want to discard. Worktrees require more disk space (full checkout per worktree). Clean up old worktrees with git worktree prune. Worktrees are most valuable when combined with subagents for truly autonomous experimentation.",
+      },
+    ],
+  },
+  {
+    slug: "agent-teams",
+    title: "Agent Teams",
+    emoji: "👥",
+    category: "Automation",
+    difficulty: "Advanced",
+    released: false,
+    releaseDate: "March 5",
+    shortDesc:
+      "Orchestrate multiple specialized agents working together to tackle complex, multi-step workflows.",
+    sections: [
+      {
+        heading: "Overview",
+        body: "Agent teams are coordinated groups of specialized agents that collaborate to complete complex tasks. An orchestrator agent breaks work into subtasks and delegates to specialist agents — each focused on a specific domain. Results flow back to the orchestrator, which synthesizes them and drives the workflow forward.",
+      },
+      {
+        heading: "Team Architecture",
+        body: "A typical agent team has an orchestrator at the top that plans and coordinates, plus a set of specialist agents below it. Each specialist has scoped tools, a focused system prompt, and returns results to the orchestrator.",
+        code: {
+          language: "text",
+          content: `Agent Team Architecture:
+
+Orchestrator Agent
+├── Plans the overall workflow
+├── Delegates to specialists
+└── Synthesizes results
+
+    ├── Explorer Agent      → reads files, searches code
+    ├── Planner Agent       → designs architecture
+    ├── Coder Agent         → writes and edits code
+    ├── Tester Agent        → runs tests, validates output
+    └── Reviewer Agent      → audits code quality`,
+        },
+      },
+      {
+        heading: "Orchestrator Pattern",
+        body: "The orchestrator is a general-purpose agent with a system prompt that instructs it to break tasks into subtasks and delegate. It uses the Task tool to spin up specialist subagents with isolated context windows and scoped tool access.",
+        code: {
+          language: "markdown",
+          content: `# .claude/agents/orchestrator.md
+---
+description: Coordinates multi-agent workflows for complex tasks
+tools: Task, Read, Write, Bash
+---
+
+You are an orchestrator. When given a complex task:
+1. Break it into independent subtasks
+2. Identify the right specialist agent for each subtask
+3. Launch specialists via Task tool (in parallel where possible)
+4. Collect results and synthesize them
+5. Continue until the task is complete
+
+Always run independent subtasks in parallel using Task(run_in_background=True).`,
+        },
+      },
+      {
+        heading: "Parallel vs Sequential Execution",
+        body: "Agent teams shine when subtasks can run in parallel. Independent tasks (e.g., exploring different parts of a codebase, running different test suites) should always run simultaneously. Dependent tasks must run sequentially — the orchestrator waits for upstream results before launching downstream agents.",
+        code: {
+          language: "text",
+          content: `# Parallel team execution:
+Orchestrator spawns simultaneously:
+  [Agent A] bg: Analyze frontend components
+  [Agent B] bg: Analyze API routes
+  [Agent C] bg: Analyze database schema
+
+[All three run at the same time]
+[Orchestrator collects all three results]
+[Synthesizes into a full architecture summary]
+
+# Sequential team execution:
+  [Agent 1] Plan the refactor   → wait for plan
+  [Agent 2] Implement the plan  → wait for impl
+  [Agent 3] Test the impl       → wait for tests
+  [Orchestrator] Merge if tests pass`,
+        },
+      },
+      {
+        heading: "Scoping Agent Permissions",
+        body: "Each agent in the team should have the minimum tools needed for its role. Explorer agents need read tools only. Coder agents need write tools. Tester agents need bash. This limits blast radius if an agent makes a mistake.",
+        code: {
+          language: "markdown",
+          content: `# Explorer agent — read-only
+---
+tools: Glob, Grep, Read
+---
+
+# Coder agent — writes code
+---
+tools: Read, Write, Edit, Glob, Grep
+---
+
+# Tester agent — runs commands
+---
+tools: Bash, Read
+---
+
+# Reviewer agent — read + bash (linting)
+---
+tools: Read, Glob, Grep, Bash
+---`,
+        },
+      },
+      {
+        heading: "Tips",
+        body: "Keep orchestrator prompts high-level — they should plan and delegate, not implement. Give each specialist a tight, focused system prompt. Use background agents for independent work and collect results asynchronously. Agent teams scale well for large tasks but add coordination overhead for simple ones — use subagents directly for straightforward work.",
+      },
+    ],
+    references: [
+      {
+        label: "SubAgents Concept",
+        url: "/concepts/subagents",
+        description: "How individual subagents work before composing them into teams.",
+      },
+      {
+        label: "Claude Code Sub-Agents Docs",
+        url: "https://docs.anthropic.com/en/docs/claude-code/sub-agents",
+        description: "Official docs on Claude Code subagents and orchestration.",
       },
     ],
   },
