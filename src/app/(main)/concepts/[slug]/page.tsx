@@ -170,7 +170,34 @@ export default async function ConceptPage({ params }: { params: Params }) {
               )}
 
               {section.screenshots && (
-                <ScreenshotViewer screenshots={section.screenshots} />
+                <ScreenshotViewer screenshots={section.screenshots} carousel={section.carousel} />
+              )}
+
+              {section.table && (
+                <div className="mt-4 overflow-x-auto">
+                  <table className="w-full text-sm border border-zinc-700 rounded-lg overflow-hidden">
+                    <thead>
+                      <tr className="bg-zinc-800 text-zinc-300">
+                        {section.table.headers.map((h, j) => (
+                          <th key={j} className="text-left px-4 py-2 font-semibold border-b border-zinc-700">
+                            {h}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {section.table.rows.map((row, j) => (
+                        <tr key={j} className={j % 2 === 0 ? "bg-zinc-900" : "bg-zinc-800/50"}>
+                          {row.map((cell, k) => (
+                            <td key={k} className="px-4 py-2 text-zinc-300 border-b border-zinc-700/50 font-mono">
+                              {cell}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               )}
             </section>
           ))}

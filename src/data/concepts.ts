@@ -19,6 +19,11 @@ export interface ConceptSection {
     src: string;
     alt: string;
   }[];
+  carousel?: boolean;
+  table?: {
+    headers: string[];
+    rows: string[][];
+  };
 }
 
 export interface ConceptReference {
@@ -1202,50 +1207,19 @@ messages = [
   },
   {
     slug: "subagents",
-    title: "Subagents & Task Tool",
+    title: "SubAgents",
     emoji: "🤖",
     category: "Automation",
     difficulty: "Advanced",
-    released: false,
-    releaseDate: "2026-03-01",
+    released: true,
     shortDesc:
       "Spawn specialized subagents for parallel, isolated, and focused tasks.",
     sections: [
       {
         heading: "Overview",
-        body: "The Task tool lets Claude spawn subagents — independent Claude instances that handle specific subtasks autonomously. Subagents have their own context, tools, and execution scope. They're perfect for parallel work, isolating expensive research from the main context, and delegating specialized tasks to optimized agent types.",
+        body: "Subagents are specialized AI assistants designed to handle focused types of tasks. Each runs in its own isolated context window with a dedicated system prompt, scoped tool access, and independent permissions. When Claude identifies a task that matches a subagent's capabilities, it delegates to that subagent — which executes autonomously and returns its results to the main agent.",
       },
-      {
-        heading: "The Task Tool",
-        body: "Claude uses the Task tool internally to create subagents. When building Claude applications with the Agent SDK or API, you can build multi-agent systems where agents spawn and coordinate other agents.",
-        code: {
-          language: "python",
-          content: `# Using Claude\'s Agent SDK to create subagent workflows
-import anthropic
-
-client = anthropic.Anthropic()
-
-# Spawn a research subagent from your main agent
-response = client.messages.create(
-    model="claude-opus-4-6",
-    max_tokens=4096,
-    tools=[
-        {
-            "name": "run_research_agent",
-            "description": "Spawn a specialized research agent",
-            "input_schema": {
-                "type": "object",
-                "properties": {
-                    "task": {"type": "string"},
-                    "context": {"type": "string"}
-                }
-            }
-        }
-    ],
-    messages=[{"role": "user", "content": "Research best auth patterns for Next.js"}]
-)`,
-        },
-      },
+     
       {
         heading: "Subagent Types in Claude Code",
         body: "Claude Code has built-in specialized subagent types: general-purpose (full tools access), Explore (codebase exploration), Plan (architecture planning), claude-code-guide (Claude Code documentation), and statusline-setup. Each is optimized for its domain.",
@@ -1267,6 +1241,31 @@ Task(subagent_type="Plan",
         },
       },
       {
+        heading: "Creating Your Own SubAgent",
+        body: "Subagents are defined in Markdown files with YAML frontmatter. You can create them manually or use the /agents command.",
+        carousel: true,
+        screenshots: [
+          { src: "/screenshots/subagents/Subagent1.png", alt: "Step 1 - Navigate to .claude/agents directory" },
+          { src: "/screenshots/subagents/Subagent2.png", alt: "Step 2 - Create a new agent markdown file" },
+          { src: "/screenshots/subagents/Subagent3.png", alt: "Step 3 - Add description frontmatter" },
+          { src: "/screenshots/subagents/Subagent4.png", alt: "Step 4 - Write the system prompt body" },
+          { src: "/screenshots/subagents/Subagent5.png", alt: "Step 5 - Set tools field in frontmatter" },
+          { src: "/screenshots/subagents/Subagent6.png", alt: "Step 6 - Save and verify agent is listed" },
+          { src: "/screenshots/subagents/Subagent7.png", alt: "Step 7 - Trigger the agent with a matching task" },
+          { src: "/screenshots/subagents/Subagent8.png", alt: "Step 8 - Agent executes autonomously" },
+          { src: "/screenshots/subagents/Subagent9.png", alt: "Step 9 - Agent returns results to main context" },
+          { src: "/screenshots/subagents/Subagent10.png", alt: "Step 10 - Review and iterate on agent behavior" },
+          { src: "/screenshots/subagents/Subagent11.png", alt: "Step 11 - Created Agent .MD file" },
+        ],
+      },
+      {
+        heading: "SubAgent Execution",
+        body: "When Claude encounters a task matching a subagent's description, it delegates via the Task tool. The subagent spins up with its own context window, executes independently, and returns results to the main agent. The main agent can continue other work while a background subagent runs, or block and wait for a foreground subagent to finish.",
+        screenshots: [
+          { src: "/screenshots/subagents/Subagent Execution.png", alt: "SubAgent execution flow — Task tool spawning a subagent and returning results to the main agent" },
+        ],
+      },
+      {
         heading: "Parallel Execution",
         body: "Subagents can run in parallel — Claude can launch multiple subagents simultaneously for independent tasks, dramatically speeding up complex workflows. Foreground agents block until complete; background agents run asynchronously.",
         code: {
@@ -1284,21 +1283,7 @@ Task(run_in_background=True,
 # Gets notified when background agent completes`,
         },
       },
-      {
-        heading: "Worktree Isolation",
-        body: "Subagents can run in isolated git worktrees — temporary branches where they can make changes without affecting the main working directory. Useful for exploratory code changes that may or may not be kept.",
-        code: {
-          language: "text",
-          content: `# Subagent with git worktree isolation:
-Task(
-    isolation="worktree",
-    prompt="Try refactoring the auth module and see if tests pass"
-)
-# Claude creates a temporary branch, subagent makes changes
-# If changes are good → merge; if not → discard
-# Main working directory stays clean throughout`,
-        },
-      },
+    
       {
         heading: "Tips",
         body: "Subagents have clean context (no conversation history), so provide complete context in the prompt. Use Explore subagents to protect the main context window from large search results. Run independent research tasks in parallel for speed.",
@@ -1311,8 +1296,7 @@ Task(
     emoji: "🪝",
     category: "Automation",
     difficulty: "Advanced",
-    released: false,
-    releaseDate: "2026-03-01",
+    released: true,
     shortDesc:
       "Run shell commands automatically before or after Claude's tool calls.",
     sections: [
@@ -1321,41 +1305,67 @@ Task(
         body: "Hooks are shell commands that Claude Code runs automatically in response to specific events — before a tool runs (PreToolUse), after a tool runs (PostToolUse), when the session ends, or when you submit a message. They're configured in your Claude Code settings and enable powerful automation, validation, and guardrails.",
       },
       {
-        heading: "Hook Events",
-        body: "Claude Code supports several lifecycle events for hooks. The most important are PreToolUse (before any tool runs) and PostToolUse (after any tool runs). Hooks can inspect the tool input/output and optionally block the tool from running.",
+        heading: "Hooks Configuration",
+        body: "Hooks are defined in Claude settings files. You can add them to:",
+        bullets: [
+          "Global — ~/.claude/settings.json (affects all projects)",
+          "Project — .claude/settings.json (shared with team)",
+          "Project (not committed) — .claude/settings.local.json (personal settings)",
+          "You can write hooks by hand in these files or use the /hooks command inside Claude Code.",
+        ],
+      },
+      {
+        heading: "PreToolUse Hooks",
+        body: "PreToolUse hooks run before a tool is executed. They include a matcher that specifies which tool types to target. Before the 'Read' tool is executed, this configuration runs the specified command.",
+        bullets: [
+          "Allow the operation to proceed normally",
+          "Block the tool call and send an error message back to Claude.",
+        ],
         code: {
           language: "json",
-          content: `// settings.json — configuring hooks
+          content: `// settings.local.json — configuring hooks
 {
   "hooks": {
-    "PreToolUse": [
+    PreToolUse": [
       {
-        "matcher": "Bash",
+        "matcher": "Read|Grep",
         "hooks": [
           {
             "type": "command",
-            "command": "echo 'About to run bash: $CLAUDE_TOOL_INPUT' >> ~/.claude/audit.log"
+            "command": "node ./hooks/read_hook.js"
           }
         ]
       }
     ],
+  }
+}`,
+        },
+        screenshots: [
+          {
+            src: "/screenshots/hooks/Prehook.png",
+            alt: "PreToolUse hook blocking a Read tool call on .env file",
+          },
+        ],
+      },
+      {
+        heading: "PostToolUse Hooks",
+        body: "PostToolUse hooks run after a tool has been executed. Here's an example that triggers after write, edit, or multi-edit operations. Since the tool call has already occurred, PostToolUse hooks can't block the operation.",
+        bullets: [
+          "Run follow-up operations (like formatting a file that was just edited)",
+          "Provide additional feedback to Claude about the tool use",
+        ],
+        code: {
+          language: "json",
+          content: `// settings.local.json — configuring a PostToolUse hook
+{
+  "hooks": {
     "PostToolUse": [
       {
-        "matcher": "Write",
+        "matcher": "Write|Edit|MultiEdit",
         "hooks": [
           {
             "type": "command",
-            "command": "npx prettier --write $CLAUDE_TOOL_OUTPUT_FILE 2>/dev/null || true"
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "notify-send 'Claude Code session ended'"
+            "command": "node ./hooks/edit_hook.js"
           }
         ]
       }
@@ -1363,61 +1373,96 @@ Task(
   }
 }`,
         },
+        screenshots: [
+          {
+            src: "/screenshots/hooks/Posthook.png",
+            alt: "PostToolUse hook logging an edit operation",
+          },
+          {
+            src: "/screenshots/hooks/Posthook Result.png",
+            alt: "PostToolUse hook logging an edit operation result",
+          },
+        ],
       },
       {
-        heading: "Hook Input & Output",
-        body: "Hooks receive context about the tool call via environment variables and stdin (as JSON). They can communicate back to Claude by writing to stdout. A non-zero exit code from a hook blocks the tool from running and shows the hook's stderr to the user.",
-        code: {
-          language: "bash",
-          content: `#!/bin/bash
-# Example PreToolUse hook script: block dangerous rm commands
-
-# Input arrives as JSON on stdin
-INPUT=$(cat)
-COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // ""')
-
-# Check for dangerous patterns
-if echo "$COMMAND" | grep -qE "rm -rf /|DROP TABLE|DELETE FROM.*WHERE 1=1"; then
-  echo "BLOCKED: Dangerous command detected: $COMMAND" >&2
-  exit 1   # Non-zero exit blocks the tool call
-fi
-
-# Add audit log entry
-echo "$(date): $COMMAND" >> ~/.claude/bash-audit.log
-exit 0   # Zero exit allows the tool call to proceed`,
+        heading: "Available Tools",
+        body: "The matcher field in your hook config targets Claude's built-in tools by name. Use these tool names to scope your hooks precisely — for example, match only Write|Edit to log file changes, or Bash to audit shell commands.",
+        table: {
+          headers: ["Tool Name", "Purpose"],
+          rows: [
+            ["Read", "Read a file"],
+            ["Edit, MultiEdit", "Edit an existing file"],
+            ["Write", "Create a file and write to it"],
+            ["Bash", "Execute a command"],
+            ["Glob", "Find files/folders based upon a pattern"],
+            ["Grep", "Search for content"],
+            ["Task", "Create a sub-agent to complete a particular task"],
+            ["WebFetch, WebSearch", "Search or fetch a particular page"],
+          ],
         },
       },
       {
-        heading: "Common Use Cases",
-        body: "Hooks enable a wide range of automation: auto-formatting files after Claude writes them, running tests after code changes, auditing all bash commands, blocking dangerous operations, sending notifications, and enforcing team coding standards.",
+        heading: "Other Hook Types",
+        body: "There are more hooks beyond the PreToolUse and PostToolUse hooks discussed in this course. There are also:",
+        bullets: [
+          "Notification - Runs when Claude Code sends a notification, which occurs when Claude needs permission to use a tool, or after Claude Code has been idle for 60 seconds",
+          "Stop - Runs when Claude Code has finished responding",
+          "SubagentStop - Runs when a subagent (these are displayed as a \"Task\" in the UI) has finished",
+          "PreCompact - Runs before a compact operation occurs, either manual or automatic",
+          "UserPromptSubmit - Runs when the user submits a prompt, before Claude processes it",
+          "SessionStart - Runs when starting or resuming a session",
+          "SessionEnd - Runs when a session ends",
+        ],
+      
+      },
+      {
+        heading: "Hook Payload Structure",
+        body: "The stdin JSON your hook receives differs based on two things: the hook event type, and (for PreToolUse/PostToolUse) which tool was called. This is the most confusing part of hooks — the shape of the payload is not uniform.",
+        bullets: [
+          "PreToolUse and PostToolUse payloads include tool_name and tool_input — but tool_input fields vary per tool (e.g. file_path for Read/Edit, command for Bash)",
+          "Notification payloads include a message field describing what triggered the notification",
+          "Stop, SubagentStop, SessionStart, SessionEnd payloads are minimal — mainly hook_event_name plus session metadata",
+          "UserPromptSubmit includes the prompt text the user just submitted",
+          "PreCompact includes context about the compaction being triggered",
+          "Always log the full payload during development (JSON.stringify(payload)) to discover the exact shape for your target hook and tool",
+        ],
         code: {
-          language: "json",
-          content: `// Practical hooks configuration
-{
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Write|Edit",
-        "hooks": [{
-          "type": "command",
-          // Auto-lint TypeScript files after Claude writes them
-          "command": "FILE=$(echo $CLAUDE_TOOL_INPUT | jq -r '.file_path'); [[ $FILE == *.ts || $FILE == *.tsx ]] && npx eslint --fix $FILE 2>/dev/null; true"
-        }]
-      }
-    ],
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [{
-          "type": "command",
-          // Warn on git push
-          "command": "echo $CLAUDE_TOOL_INPUT | jq -r '.command' | grep -q 'git push' && echo 'Warning: About to push to remote' || true"
-        }]
-      }
-    ]
+          language: "js",
+          content: `// session_hook.js
+// Discover the payload shape for any hook — log everything first
+
+const fs = require("fs");
+
+async function main() {
+  const chunks = [];
+  for await (const chunk of process.stdin) chunks.push(chunk);
+  const payload = JSON.parse(Buffer.concat(chunks).toString());
+
+  // Read existing entries, append new one, write back
+  const logPath = "./hooks/payloads.json";
+  let entries = [];
+  if (fs.existsSync(logPath)) {
+    try {
+      entries = JSON.parse(fs.readFileSync(logPath, "utf8"));
+    } catch {
+      entries = [];
+    }
   }
-}`,
+
+  entries.push({ timestamp: new Date().toISOString(), payload });
+  fs.writeFileSync(logPath, JSON.stringify(entries, null, 2));
+}
+
+main();
+`,
         },
+        screenshots: [
+          {
+            src: "/screenshots/hooks/Payload.png",
+            alt: "Sampe payload logged by a hook",
+          },
+        
+        ],
       },
       {
         heading: "Tips",
@@ -1431,8 +1476,7 @@ exit 0   # Zero exit allows the tool call to proceed`,
     emoji: "🎯",
     category: "Automation",
     difficulty: "Intermediate",
-    released: false,
-    releaseDate: "2026-03-01",
+    released: true,
     shortDesc:
       "Create custom slash commands that expand into full prompts for repeated workflows.",
     sections: [
@@ -1466,6 +1510,9 @@ EOF
 claude
 > /commit`,
         },
+        screenshots: [
+          { src: "/screenshots/skills/Skill.png", alt: "Creating a skill file in .claude/skills/" },
+        ],
       },
       {
         heading: "Using Skills",
