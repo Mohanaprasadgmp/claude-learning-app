@@ -539,8 +539,8 @@ claude --read-only
     ],
   },
   {
-    slug: "settings-json",
-    title: "settings.json vs settings.local.json",
+    slug: "settings",
+    title: "Settings & Configuration",
     emoji: "⚙️",
     category: "Core CLI",
     difficulty: "Beginner",
@@ -550,7 +550,29 @@ claude --read-only
     sections: [
       {
         heading: "Overview",
-        body: "Claude Code uses two layered configuration files to control its behaviour. `settings.json` is the shared project config (committed to git), while `settings.local.json` is a machine-specific override that stays out of version control. Together they let teams share a baseline while each developer keeps their own personal tweaks.",
+        body: "Claude Code uses three layered settings.json files. `~/.claude/settings.json` is a global config that applies to every project on your machine. `.claude/settings.json` is the shared project config committed to git. `.claude/settings.local.json` is a machine-specific override that stays git-ignored. Together they let teams share a baseline while each developer keeps personal tweaks.",
+      },
+      {
+        heading: "Settings File Locations",
+        body: "Settings cascade from global → project → local. The file closest to you wins on any conflicting key. Nothing is lost from lower layers — only conflicting keys get overwritten. The `.claude/` directory also holds skills, worktrees, and memory.",
+        code: {
+          language: "text",
+          content: `Layer 1 — Global (applies to every project on your machine)
+  ~/.claude/settings.json
+
+    Layer 2 — Project shared (committed, applies to all teammates)
+      .claude/settings.json
+
+        Layer 3 — Your local overrides (git-ignored, your machine only)
+          .claude/settings.local.json   ← wins on conflict
+
+# The .claude/ directory structure:
+.claude/
+├── settings.json        ← project settings (commit this)
+├── settings.local.json  ← personal overrides (git-ignored)
+├── skills/              ← project-specific skills
+└── worktrees/           ← temporary worktree checkouts`,
+        },
       },
       {
         heading: "settings.json — Shared Project Config",
@@ -559,10 +581,21 @@ claude --read-only
           language: "json",
           content: `// .claude/settings.json  (committed to git)
 {
+  "model": "claude-sonnet-4-6",
+
   "permissions": {
     "allow": ["Bash(npm run *)", "Read", "Write", "Edit"],
-    "deny": []
+    "deny": ["Bash(rm -rf *)", "Bash(git push --force *)"]
   },
+
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": { "GITHUB_PERSONAL_ACCESS_TOKEN": "\${GITHUB_TOKEN}" }
+    }
+  },
+
   "hooks": {
     "PostToolUse": [
       {
@@ -576,7 +609,7 @@ claude --read-only
       },
       {
         heading: "settings.local.json — Personal Overrides",
-        body: "Lives at `.claude/settings.local.json` and is git-ignored by default. Use it for anything you don't want to share: personal API keys, machine-specific paths, or a wider auto-approve list that suits your own workflow. Settings here are merged on top of `settings.json`, so you only need to specify what you're overriding.",
+        body: "Lives at `.claude/settings.local.json` and is git-ignored by default. Use it for anything you don't want to share: personal API keys, machine-specific paths, or a wider auto-approve list that suits your own workflow. You only need to specify what you're overriding — it merges on top of the project config.",
         screenshots: [
           {
             src: "/screenshots/Setting.png",
@@ -604,26 +637,8 @@ claude --read-only
         },
       },
       {
-        heading: "Merge Order",
-        body: "Think of it as three layers stacked on top of each other. Claude Code reads all three files and combines them — the file closest to you (settings.local.json) always wins if the same setting appears in multiple places. Nothing is lost from lower layers; only conflicting keys get overwritten.",
-        code: {
-          language: "text",
-          content: `Layer 1 — Global (applies to every project on your machine)
-  ~/.claude/settings.json
-
-    Layer 2 — Project shared (committed, applies to all teammates)
-      .claude/settings.json
-
-        Layer 3 — Your local overrides (git-ignored, your machine only)
-          .claude/settings.local.json   ← wins on conflict
-
-Example: if Layer 1 allows ["Read"] and Layer 3 allows ["Read", "Write"],
-the final result is ["Read", "Write"] — layers add, not replace.`,
-        },
-      },
-      {
         heading: "What Belongs Where",
-        body: "A simple rule of thumb: if every team member needs it, put it in `settings.json`. If it's personal, machine-specific, or contains a secret, put it in `settings.local.json`. Never commit API keys or personal access tokens — use the local file or environment variables injected outside Claude Code.",
+        body: "If every team member needs it, put it in `settings.json`. If it's personal, machine-specific, or contains a secret, put it in `settings.local.json`. Never commit API keys or personal access tokens.",
         code: {
           language: "text",
           content: `settings.json (commit)         settings.local.json (don't commit)
@@ -635,8 +650,24 @@ Custom slash-command hooks     Dev-only env var overrides`,
         },
       },
       {
+        heading: "Environment Variables",
+        body: "Some Claude Code behavior is also configurable via environment variables — useful for CI/CD environments where you can't easily write settings files.",
+        code: {
+          language: "bash",
+          content: `# Core environment variables:
+ANTHROPIC_API_KEY=sk-ant-...        # Required: your API key
+CLAUDE_MODEL=claude-opus-4-6        # Override default model
+CLAUDE_MAX_TOKENS=8192              # Override max response tokens
+ANTHROPIC_BASE_URL=https://...      # Custom API endpoint (proxies)
+
+# Non-interactive / CI usage:
+export ANTHROPIC_API_KEY="$SECRET_KEY"
+claude -p "Review this code for security issues" < code.ts`,
+        },
+      },
+      {
         heading: "Tips",
-        body: "Add `.claude/settings.local.json` to your global `.gitignore` so it can never be accidentally committed. If you're bootstrapping a new project, start with an empty `settings.json` and let each developer build their own `settings.local.json`. Review your team's `settings.json` in code review just like any other config file — it controls what Claude can do automatically.",
+        body: "Add `.claude/settings.local.json` to your global `.gitignore` so it can never be accidentally committed. Commit `.claude/settings.json` so the whole team shares project-level configuration. Keep API keys in environment variables, not settings files. Review your team's `settings.json` in code review just like any other config file — it controls what Claude can do automatically.",
       },
     ],
     references: [
@@ -1730,115 +1761,6 @@ Task(
       {
         heading: "Tips",
         body: "Use worktrees for risky refactors, large feature work, or any experiment you might want to discard. Worktrees require more disk space (full checkout per worktree). Clean up old worktrees with git worktree prune. Worktrees are most valuable when combined with subagents for truly autonomous experimentation.",
-      },
-    ],
-  }, 
-  {
-    slug: "settings",
-    title: "Settings & Configuration",
-    emoji: "⚙️",
-    category: "Integration",
-    difficulty: "Intermediate",
-    released: true,
-    shortDesc:
-      "Configure Claude Code behavior through settings files at user and project level.",
-    sections: [
-      {
-        heading: "Overview",
-        body: "Claude Code is configured through settings.json files. There are two levels: user-level (~/.claude/settings.json) which applies to all projects, and project-level (.claude/settings.json) which overrides user settings for a specific project. Settings control permissions, MCP servers, hooks, models, and more.",
-      },
-      {
-        heading: "Settings File Locations",
-        body: "Settings cascade from user to project level. Project settings override user settings. This lets you set global defaults (preferred model, audit hooks) at the user level and project-specific overrides (different permissions, project MCP servers) at the project level.",
-        code: {
-          language: "text",
-          content: `# User-level settings (applies to all projects):
-~/.claude/settings.json
-
-# Project-level settings (applies to this project only):
-.claude/settings.json
-
-# Order of precedence (highest wins):
-1. Project settings (.claude/settings.json)
-2. User settings (~/.claude/settings.json)
-3. Default Claude Code behavior
-
-# The .claude/ directory also contains:
-.claude/
-├── settings.json      ← project settings
-├── skills/            ← project-specific skills
-├── worktrees/         ← temporary worktree checkouts
-└── memory/            ← (handled by user-level memory system)`,
-        },
-      },
-      {
-        heading: "Key Settings",
-        body: "The most important settings are: permissions (allow/deny tool patterns), mcpServers (external tool connections), hooks (lifecycle automation), and model (default Claude model to use).",
-        code: {
-          language: "json",
-          content: `// Complete settings.json example
-{
-  // Default model for this project
-  "model": "claude-sonnet-4-6",
-
-  // Permission rules
-  "permissions": {
-    "allow": [
-      "Bash(npm run *)",
-      "Bash(git status)",
-      "Bash(git diff)",
-      "Write(src/**)",
-      "Read"
-    ],
-    "deny": [
-      "Bash(rm -rf *)",
-      "Bash(git push --force *)"
-    ]
-  },
-
-  // MCP servers
-  "mcpServers": {
-    "github": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-github"],
-      "env": { "GITHUB_PERSONAL_ACCESS_TOKEN": "\${GITHUB_TOKEN}" }
-    }
-  },
-
-  // Hooks
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Write|Edit",
-        "hooks": [{
-          "type": "command",
-          "command": "npx prettier --write $(echo $CLAUDE_TOOL_INPUT | jq -r '.file_path // empty') 2>/dev/null; true"
-        }]
-      }
-    ]
-  }
-}`,
-        },
-      },
-      {
-        heading: "Environment Variables",
-        body: "Some Claude Code behavior is also configurable via environment variables, useful for CI/CD environments where you can't easily write settings files.",
-        code: {
-          language: "bash",
-          content: `# Core environment variables:
-ANTHROPIC_API_KEY=sk-ant-...        # Required: your API key
-CLAUDE_MODEL=claude-opus-4-6        # Override default model
-CLAUDE_MAX_TOKENS=8192              # Override max response tokens
-ANTHROPIC_BASE_URL=https://...      # Custom API endpoint (proxies)
-
-# Non-interactive / CI usage:
-export ANTHROPIC_API_KEY="$SECRET_KEY"
-claude -p "Review this code for security issues" < code.ts`,
-        },
-      },
-      {
-        heading: "Tips",
-        body: "Commit .claude/settings.json to your repository so the whole team shares project-level configuration. Keep sensitive values (API keys) in environment variables, not in settings files. Use the allow/deny permission system to create a safety net that matches your team's risk tolerance.",
       },
     ],
   },
